@@ -8,10 +8,9 @@ import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import { useCallback } from 'react';
 
 export default function MapComponent() {
-    // --- 1. DEFINIR VARIABLES SIMPLES PRIMERO ---
+    // --- DEFINIR VARIABLES SIMPLES PRIMERO ---
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
-    // --- 2. LLAMAR A TODOS LOS HOOKS (SIEMPRE ARRIBA) ---
     const viewState = useMapStore((state) => state.viewState);
     const setViewState = useMapStore((state) => state.setViewState);
 
@@ -21,7 +20,6 @@ export default function MapComponent() {
     // --- FIN DE LA ZONA DE HOOKS ---
 
 
-    // --- 3. AHORA SÍ PODEMOS TENER RETORNOS TEMPRANOS ---
     if (!mapTilerKey) {
         console.error("MapTiler key no está configurada en .env.local");
         return <div>Error: Falta la API Key del mapa.</div>;
