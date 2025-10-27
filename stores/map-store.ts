@@ -1,52 +1,51 @@
 // stores/map-store.ts
-
 import { createStore } from 'zustand/vanilla';
-// Importamos el tipo oficial de react-map-gl
 import type { ViewState } from 'react-map-gl/maplibre';
 
-// 1. Definimos el estado
+// 1. Definimos los nuevos tipos de estado
+export type MapMode = 'browse' | 'add-point' | 'add-line' | 'add-polygon' | 'edit-shape';
+export type PendingPoint = { lat: number; lng: number } | null;
+
 export type MapState = {
   viewState: ViewState;
-  // Aquí podrás agregar más cosas, como tus datos de GeoJSON
-  // geojsonData: FeatureCollection | null; 
+  mode: MapMode;
+  pendingPoint: PendingPoint;
 };
 
-// 2. Definimos las acciones
+// 2. Definimos las nuevas acciones
 export type MapActions = {
   setViewState: (newViewState: ViewState) => void;
-  // fetchGeojsonData: () => Promise<void>;
+  setMode: (mode: MapMode) => void;
+  setPendingPoint: (point: PendingPoint) => void;
 };
 
-// 3. Combinamos estado y acciones
 export type MapStore = MapState & MapActions;
 
-// 4. Definimos el estado inicial
+// 3. Actualizamos el estado inicial
 export const defaultInitialState: MapState = {
   viewState: {
-    longitude: -58.3816, // Coordenadas de Buenos Aires
+    longitude: -58.3816,
     latitude: -34.6037,
     zoom: 12,
     bearing: 0,
     pitch: 0,
     padding: { top: 0, bottom: 0, left: 0, right: 0 }
   },
-  // geojsonData: null,
+  mode: 'browse', // El modo inicial es "navegar"
+  pendingPoint: null, // No hay ningún punto temporal
 };
 
-// 5. Creamos la "fábrica" de stores
+// 4. Creamos la "fábrica" de stores
 export const createMapStore = (
   initState: MapState = defaultInitialState,
 ) => {
   return createStore<MapStore>()((set) => ({
     ...initState,
 
-    // Acción para actualizar el viewState
+    // Acciones
     setViewState: (newViewState) => set({ viewState: newViewState }),
-
-    // Ejemplo de cómo agregarías una acción para tus datos
-    // fetchGeojsonData: async () => {
-    //   const data = await fetch('/api/shapes').then(res => res.json());
-    //   set({ geojsonData: data });
-    // }
+    setMode: (mode) => set({ mode }),
+    setPendingPoint: (point) => set({ pendingPoint: point }),
   }));
 };
+

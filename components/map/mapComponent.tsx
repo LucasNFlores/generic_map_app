@@ -1,24 +1,52 @@
-// components/map/MapComponent.tsx
-
 'use client';
 
-import Map from 'react-map-gl/maplibre';
+// 1. Importamos el <Marker> y el tipo 'MapLayerMouseEvent'
+import Map, { Marker, type MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import { useCallback } from 'react';
+import { Container } from './buttons/Container';
+import AddPoint from './buttons/AddPoint';
+// Importamos el nuevo botón de cancelar
+import CancelAddPoint from './buttons/CancelAddPoint';
+import type { MapStore } from '@/stores/map-store'; // Importamos el TIPO
+
+// Un componente simple para el marcador temporal
+function TemporaryMarker() {
+    return (
+        <div style={{
+            position: 'absolute', // Aseguramos que se posicione respecto al mapa
+            transform: 'translate(-50%, -50%)' // Centrado manual
+        }}
+            className="w-4 h-4 bg-pink-600 border-2 border-white rounded-full cursor-pointer -translate-x-1/2 -translate-y-1/2" />
+    );
+}
 
 export default function MapComponent() {
-    // --- DEFINIR VARIABLES SIMPLES PRIMERO ---
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
-    const viewState = useMapStore((state) => state.viewState);
-    const setViewState = useMapStore((state) => state.setViewState);
+    // --- 2. SEPARAMOS LOS SELECTORES ---
+    // Seleccionamos cada pieza del estado por separado para evitar re-renders infinitos.
+    const viewState = useMapStore((state: MapStore) => state.viewState);
+    const mode = useMapStore((state: MapStore) => state.mode);
+    const pendingPoint = useMapStore((state: MapStore) => state.pendingPoint);
+
+    // Las funciones de set son estables, se pueden seleccionar juntas o separadas.
+    const setViewState = useMapStore((state: MapStore) => state.setViewState);
+    const setPendingPoint = useMapStore((state: MapStore) => state.setPendingPoint);
 
     const handleMove = useCallback((evt: ViewStateChangeEvent) => {
         setViewState(evt.viewState);
     }, [setViewState]);
-    // --- FIN DE LA ZONA DE HOOKS ---
 
+    // --- 3. Nueva función para manejar el clic en el mapa ---
+    const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
+        // Solo hacemos algo si estamos en modo 'add-point'
+        if (mode === 'add-point') {
+            const { lng, lat } = evt.lngLat;
+            setPendingPoint({ lng, lat });
+        }
+    }, [mode, setPendingPoint]);
 
     if (!mapTilerKey) {
         console.error("MapTiler key no está configurada en .env.local");
@@ -28,19 +56,35 @@ export default function MapComponent() {
     const mapStyle = `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`;
 
     return (
-        // Ajustamos el contenedor para que tenga una altura explícita.
-        // Si tu layout tiene una barra de navegación de 4rem (h-16),
-        // usamos calc(100vh - 4rem). Adapta el valor si tu nav tiene otra altura.
-        <div id="mapContainer" className="px-5 rounded-s-3xl overflow-hidden h-[calc(100vh-4rem)]">
+        <div id="mapContainer" className="relative px-5 rounded-s-3xl overflow-hidden h-[calc(100vh-6rem)]">
             <Map
                 {...viewState}
                 onMove={handleMove}
-                // Aseguramos que el mapa ocupe todo el contenedor
+                onClick={handleMapClick} // 4. Añadimos el listener de clic
+                // Cambiamos el cursor si estamos en modo 'add-point'
+                cursor={mode === 'add-point' ? 'pointer' : 'grab'}
                 style={{ width: '100%', minWidth: "90vw", height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
             >
-                {/* Aquí podrás agregar tus capas <Source> y <Layer> en el futuro */}
+                {/* 5. Renderizamos el marcador temporal si existe */}
+                {pendingPoint && (
+                    <Marker
+                        longitude={pendingPoint.lng}
+                        latitude={pendingPoint.lat}
+                        anchor="center"
+                    >
+                        <TemporaryMarker />
+                    </Marker>
+                )}
+
+                <Container>
+                    {/* Estos componentes tienen su propia lógica interna */}
+                    <AddPoint />
+                    <CancelAddPoint />
+                </Container>
+
             </Map>
         </div>
     );
 }
+

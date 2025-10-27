@@ -7,7 +7,7 @@ export default function MapaPage() {
     // 1. Usamos useMemo y dynamic para importar el componente del mapa
     //    sin que se renderice en el servidor (ssr: false).
     const Map = useMemo(() => dynamic(
-        () => import('@/components/map/mapComponent'), // 2. Esta es la ruta a tu componente
+        () => import('@/components/map/MapComponent'), // 2. Esta es la ruta a tu componente
         {
             loading: () => <p>Cargando mapa...</p>, // 3. Texto mientras carga
             ssr: false // 4. Deshabilita el Server-Side Rendering para el mapa
