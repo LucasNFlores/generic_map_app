@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store'; // Importamos el TIPO
+import toast from 'react-hot-toast';
 
 export default function AddPoint() {
     const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +25,6 @@ export default function AddPoint() {
     const handleClick = useCallback(async () => {
         if (isLoading) return;
 
-        // --- CORRECCIÓN: Lógica de dos pasos ---
         if (mode === 'browse') {
             // Si estamos navegando, entramos en modo añadir punto
             setMode('add-point');
@@ -37,7 +37,6 @@ export default function AddPoint() {
                 const { lat: latitude, lng: longitude } = pendingPoint;
 
                 console.log(pendingPoint);
-
 
                 const payload = {
                     type: 'point',
@@ -55,9 +54,11 @@ export default function AddPoint() {
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Error al guardar el punto');
+                    toast.error('Error al guardar el punto \n\n ' + errorData.error);
                 }
 
-                console.log('Punto guardado con éxito');
+                toast.success('Punto guardado con éxito');
+
                 // Salimos del modo 'add-point' y limpiamos
                 setMode('browse');
                 setPendingPoint(null);
@@ -66,6 +67,8 @@ export default function AddPoint() {
 
             } catch (error) {
                 console.error(error);
+                toast.error('Error al guardar el punto \n\n ' + error);
+
                 // Notificar error al usuario
             } finally {
                 setIsLoading(false);
@@ -75,7 +78,6 @@ export default function AddPoint() {
             // no hacemos nada (o podríamos mostrar un mensaje).
             console.log("Por favor, haz clic en el mapa para seleccionar la ubicación.");
         }
-        // --- FIN DE LA CORRECCIÓN ---
 
     }, [mode, pendingPoint, isLoading, setMode, setPendingPoint]); // Añadimos dependencias
 
