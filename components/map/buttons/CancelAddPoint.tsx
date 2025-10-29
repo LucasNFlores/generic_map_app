@@ -26,7 +26,7 @@ export default function CancelAddPoint() {
             type="button"
             className="flex items-center 
                         gap-2 rounded-md border bg-red-600 text-white px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
-                        hover:bg-red-700"
+                        hover:bg-red-700 w-full p-6"
             onClick={handleCancel}
         >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-red-600">
@@ -35,7 +35,7 @@ export default function CancelAddPoint() {
                     <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
             </span>
-            <span className="opacity-0 max-w-0 overflow-hidden transition-all duration-100 group-hover:opacity-100 group-hover:max-w-full">
+            <span className="overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 Cancelar
             </span>
         </button>

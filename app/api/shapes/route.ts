@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-// Importamos el tipo específico desde nuestro archivo centralizado de tipos
-import type { CreateShapePayload } from '@/app/types';
-
-// Ya no necesitamos la interfaz inline porque la importamos desde @/types
-// interface CreateShapePayload { ... }
-
+import { createClient } from '@/lib/supabase/server'; // Importa desde /lib
+import type { CreateShapePayload } from '@/types'; // Importa el tipo desde /types
 
 export async function POST(request: Request) {
-
+    // 1. Crear cliente y verificar autenticación
     const supabase = await createClient();
 
-    // 1. Verificar si el usuario está autenticado
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -21,28 +15,24 @@ export async function POST(request: Request) {
 
     try {
         // 2. Obtener y validar el cuerpo de la petición
-        // Ahora usamos el tipo importado
         const payload: CreateShapePayload = await request.json();
 
-        // Validación básica (puedes añadir más con librerías como Zod)
+        // Validación básica
         if (!payload.type || !payload.points || !Array.isArray(payload.points) || payload.points.length === 0) {
             return NextResponse.json({ error: 'Invalid payload: type and points array are required.' }, { status: 400 });
         }
-        // Validar coordenadas dentro del array points
         for (const point of payload.points) {
             if (typeof point.latitude !== 'number' || typeof point.longitude !== 'number') {
                 return NextResponse.json({ error: 'Invalid point data: latitude and longitude must be numbers.' }, { status: 400 });
             }
         }
 
-
         // 3. Llamar a la función RPC de PostgreSQL
         const { data: rpcData, error: rpcError } = await supabase.rpc('create_shape_with_points', {
-            // Pasamos los argumentos que espera la función SQL
             shape_type: payload.type,
-            shape_name: payload.name ?? null, // Usar null si no viene
+            shape_name: payload.name ?? null,
             shape_description: payload.description ?? null,
-            points_data: payload.points // El array de puntos se pasa directamente
+            points_data: payload.points
         });
 
         // 4. Manejar errores de la función RPC
@@ -63,10 +53,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: rpcData.error }, { status: 400 });
         }
 
-
         // 5. Éxito: Devolver la nueva shape creada
-        console.log('API Shapes POST: Shape created successfully:', rpcData);
-        // Usamos status 201 Created para indicar que se creó un recurso
         return NextResponse.json(rpcData, { status: 201 });
 
     } catch (error) {
@@ -77,42 +64,49 @@ export async function POST(request: Request) {
         } else if (typeof error === 'string') {
             errorMessage = error;
         }
-        // Manejo de errores genéricos (ej: JSON mal formado)
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
 
-export async function GET(request: Request) {
-    const supabase = await createClient(); // Creamos cliente (puede ser anónimo o auth)
+export async function GET() {
+    // Creamos un cliente (puede ser anónimo o auth, RLS lo manejará)
+    const supabase = await createClient();
 
     try {
-        // 1. Intentamos obtener las shapes
-        // La consulta respeta las RLS definidas en Supabase.
-        // Si no hay RLS o permiten SELECT a anónimos/autenticados, devolverá datos.
-        const { data: shapes, error } = await supabase
-            .from('shapes')
-            .select('*') // Selecciona todas las columnas de la tabla 'shapes'
-            .order('created_at', { ascending: false }); // Opcional: ordenar por fecha
+        // 1. Intentamos obtener las shapes con sus puntos anidados
+        // Esta consulta le dice a Supabase que:
+        // 1. Seleccione todas las columnas de 'shapes' (*).
+        // 2. Para cada shape, traiga todas las 'shape_points' relacionadas.
+        // 3. Para cada 'shape_point', traiga el 'points' (lat, lng) relacionado.
+        // 4. Ordene los 'shape_points' por 'sequence_order' para dibujar en orden.
 
-        // 2. Manejar errores de la base de datos
+        const { data, error } = await supabase
+            .from('shapes')
+            .select(`
+                *,
+                shape_points (
+                    sequence_order,
+                    points (
+                        latitude,
+                        longitude
+                    )
+                )
+            `)
+            .order('sequence_order', { foreignTable: 'shape_points' }); // Ordena los puntos anidados
+
+
         if (error) {
             console.error('API Shapes GET: Database error:', error);
-            // Puede ser un error de RLS si el usuario no tiene permiso
-            return NextResponse.json({ error: error.message || 'Database error' }, { status: 500 });
+            throw error; // Pasa al bloque catch
         }
 
-        // 3. Éxito: Devolver las shapes encontradas
-        return NextResponse.json(shapes);
+        // 2. Éxito: Devolver los datos
+        return NextResponse.json(data);
 
     } catch (error) {
         console.error('API Shapes GET: Unexpected error:', error);
-        let errorMessage = 'Internal Server Error';
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        } else if (typeof error === 'string') {
-            errorMessage = error;
-        }
-        return NextResponse.json({ error: errorMessage }, { status: 500 });
+        // @ts-expect-error No tenglo la estructura del error asegurada
+        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 

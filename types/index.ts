@@ -37,21 +37,58 @@ export interface Profile {
     config: Record<string, unknown> | null; // jsonb
     tutorials_switch: boolean;
     updated_at: string; // timestamptz
-    first_name: string | null; // Añadido basado en tu último SQL
-    last_name: string | null;  // Añadido basado en tu último SQL
-}
-
-// Interfaz extendida que podrías usar en el frontend, combinando Shape y sus Points
-export interface ShapeWithPoints extends Shape {
-    points: Point[]; // O Array<{ latitude: number, longitude: number }> si prefieres
+    first_name: string | null;
+    last_name: string | null;
 }
 
 // Interfaz para el payload que espera tu API POST /api/shapes
-// (La movimos desde route.ts para reutilizarla)
 export interface CreateShapePayload {
     type: ShapeType;
     name?: string;
     description?: string;
-    // Ojo: La API espera { latitude, longitude }, no el objeto Point completo
     points: Array<{ latitude: number; longitude: number }>;
 }
+
+
+// --- 1. NUEVOS TIPOS PARA LA RESPUESTA GET ---
+
+// Tipo para un punto individual (que viene de la tabla 'points')
+export type ShapePointData = {
+    latitude: number;
+    longitude: number;
+}
+
+// Tipo para la respuesta de nuestra API GET /api/shapes
+// Coincide con la consulta de Supabase: shapes(*, shape_points(*, points(*)))
+export interface ShapeWithPoints extends Shape {
+    shape_points: {
+        sequence_order: number;
+        points: ShapePointData | null; // El 'point' anidado
+    }[];
+}
+
+
+// --- 2. NUEVOS TIPOS PARA GEOJSON (Frontend) ---
+
+// Tipo para la geometría de GeoJSON
+export type GeoJsonGeometry = {
+    type: 'Point' | 'LineString' | 'Polygon';
+    coordinates:
+    | [number, number] // Point: [lng, lat]
+    | [number, number][] // LineString: Array<[lng, lat]>
+    | Array<Array<[number, number]>>; // Polygon: Array<Array<[lng, lat]>> (array of linear rings)
+};
+
+// Una 'Feature' de GeoJSON combina la geometría con las propiedades
+export type GeoJsonFeature = {
+    type: 'Feature';
+    geometry: GeoJsonGeometry;
+    properties: Shape; // Guardamos la 'Shape' original en las propiedades
+};
+
+// Una colección de 'Features'
+export type GeoJsonFeatureCollection = {
+    type: 'FeatureCollection';
+    features: GeoJsonFeature[];
+};
+

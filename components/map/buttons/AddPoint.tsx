@@ -95,11 +95,11 @@ export default function AddPoint() {
             type="button"
             className="flex items-center 
                         gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
-                        disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled:opacity-50 disabled:cursor-not-allowed p-6 hover:bg-accent"
             onClick={handleClick}
             disabled={isDisabled} // Usamos el estado dinámico
         >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary  text-primary-foreground">
                 {/* Cambiamos el ícono si estamos confirmando */}
                 {mode === 'add-point' && pendingPoint ? (
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
@@ -111,7 +111,7 @@ export default function AddPoint() {
                     </svg>
                 )}
             </span>
-            <span className="opacity-0 max-w-0 overflow-hidden transition-all duration-100 group-hover:opacity-100 group-hover:max-w-full">
+            <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 {buttonText} {/* Usamos el texto dinámico */}
             </span>
         </button>
