@@ -1,50 +1,59 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMapStore } from '@/providers/map-store-provider';
-import type { MapStore } from '@/stores/map-store'; // Importamos el TIPO
-import toast from 'react-hot-toast';
+import type { MapStore } from '@/stores/map-store';
+import { toast } from 'react-hot-toast';
 
 export default function AddPoint() {
     const [isLoading, setIsLoading] = useState(false);
 
-    // --- CORRECCIÓN: Leemos MÁS ESTADO del store ---
-    // Necesitamos saber el 'mode' actual y el 'pendingPoint'
+    // --- 1. Leemos todos los estados y acciones necesarios del store ---
     const mode = useMapStore((state: MapStore) => state.mode);
-    const pendingPoint = useMapStore((state: MapStore) => state.pendingPoint);
-
-    // Y las acciones para cambiar el modo y limpiar el punto
     const setMode = useMapStore((state: MapStore) => state.setMode);
-    const setPendingPoint = useMapStore((state: MapStore) => state.setPendingPoint);
-    // --- FIN DE LA CORRECCIÓN ---
 
+    // Usamos el nuevo array 'pendingPoints'
+    const pendingPoints = useMapStore((state: MapStore) => state.pendingPoints);
+    const clearPendingPoints = useMapStore((state: MapStore) => state.clearPendingPoints);
 
-    // TODO (Próximo paso): Agregar acción 'fetchShapes' para refrescar
-    // const fetchShapes = useMapStore((state) => state.fetchShapes);
+    // La acción para recargar el mapa después de guardar
+    const fetchShapes = useMapStore((state: MapStore) => state.fetchShapes);
 
+    // --- 2. Lógica de Clic Actualizada ---
     const handleClick = useCallback(async () => {
-        if (isLoading) return;
 
+        // --- CASO 1: Estamos en modo 'browse', queremos empezar a añadir un punto ---
         if (mode === 'browse') {
-            // Si estamos navegando, entramos en modo añadir punto
             setMode('add-point');
-            setPendingPoint(null); // Limpiamos cualquier punto anterior
-        } else if (mode === 'add-point' && pendingPoint) {
-            // Si estamos añadiendo y YA hay un punto seleccionado, lo guardamos
+            return; // No hacemos nada más, solo cambiamos de modo
+        }
+
+        // --- CASO 2: Estamos en modo 'add-point', queremos confirmar y guardar ---
+        if (mode === 'add-point') {
+
+            // Verificación: ¿Hay un punto seleccionado?
+            if (pendingPoints.length === 0) {
+                toast.error('Por favor, haz clic en el mapa para seleccionar una ubicación.');
+                return;
+            }
+
+            if (isLoading) return; // Evitar doble clic
             setIsLoading(true);
+            const toastId = toast.loading('Guardando punto...');
+
             try {
-                // Usamos las coordenadas del pendingPoint, NO del viewState
-                const { lat: latitude, lng: longitude } = pendingPoint;
+                // Tomamos el primer (y único) punto del array
+                const point = pendingPoints[0];
 
-                console.log(pendingPoint);
-
+                // Preparamos el payload para nuestra API
                 const payload = {
                     type: 'point',
-                    name: `Punto (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`, // Nombre descriptivo
+                    name: `Punto (${point.lat.toFixed(4)}, ${point.lng.toFixed(4)})`,
                     description: '',
-                    points: [{ latitude, longitude }]
+                    points: [{ latitude: point.lat, longitude: point.lng }]
                 };
 
+                // Llamamos al endpoint de la API
                 const response = await fetch('/api/shapes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -54,65 +63,75 @@ export default function AddPoint() {
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Error al guardar el punto');
-                    toast.error('Error al guardar el punto \n\n ' + errorData.error);
                 }
 
-                toast.success('Punto guardado con éxito');
+                toast.success('Punto guardado con éxito', { id: toastId });
 
-                // Salimos del modo 'add-point' y limpiamos
+                // Reseteamos el estado a 'browse'
                 setMode('browse');
-                setPendingPoint(null);
-
-                // TODO: Refrescar el mapa llamando a fetchShapes();
+                clearPendingPoints(); // Limpiamos el punto temporal
+                fetchShapes(); // Recargamos las formas en el mapa
 
             } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error';
+                toast.error(errorMessage, { id: toastId });
                 console.error(error);
-                toast.error('Error al guardar el punto \n\n ' + error);
-
-                // Notificar error al usuario
             } finally {
-                setIsLoading(false);
+                setIsLoading(false); // Reactivar el botón
             }
-        } else if (mode === 'add-point' && !pendingPoint) {
-            // Si estamos en modo añadir pero AÚN NO se hizo clic en el mapa,
-            // no hacemos nada (o podríamos mostrar un mensaje).
-            console.log("Por favor, haz clic en el mapa para seleccionar la ubicación.");
         }
 
-    }, [mode, pendingPoint, isLoading, setMode, setPendingPoint]); // Añadimos dependencias
+        // Aquí se añadiría la lógica futura para 'add-line' y 'add-polygon'
 
-    // --- CORRECCIÓN: Texto y estado 'disabled' dinámicos ---
-    const buttonText = mode === 'add-point'
-        ? (pendingPoint ? (isLoading ? 'Guardando...' : 'Confirmar Punto') : 'Selecciona ubicación...')
-        : 'Nuevo Punto';
+    }, [mode, isLoading, setMode, pendingPoints, clearPendingPoints, fetchShapes]);
 
-    // Deshabilitamos si está cargando, o si estamos en modo 'add-point' SIN un punto seleccionado
-    const isDisabled = isLoading || (mode === 'add-point' && !pendingPoint);
-    // --- FIN DE LA CORRECCIÓN ---
+
+    // --- 3. Lógica para el Texto y Estado del Botón (Dinámico) ---
+    // Usamos useMemo para calcular el texto y si está deshabilitado
+    const { buttonText, isDisabled } = useMemo(() => {
+        if (isLoading) {
+            return { buttonText: 'Guardando...', isDisabled: true };
+        }
+
+        if (mode === 'add-point') {
+            // Si estamos en modo 'add-point' pero no hemos seleccionado un punto...
+            if (pendingPoints.length === 0) {
+                return { buttonText: 'Selecciona ubicación...', isDisabled: true };
+            }
+            // Si ya seleccionamos un punto...
+            return { buttonText: 'Confirmar Punto', isDisabled: false };
+        }
+
+        // Estado por defecto (modo 'browse')
+        return { buttonText: 'Nuevo Punto', isDisabled: false };
+
+    }, [mode, isLoading, pendingPoints]);
+
+
+    // --- 4. Renderizado del Botón ---
+
+    // Este botón solo se muestra si estamos en modo 'browse' o 'add-point'
+    // (Se ocultará si estamos en 'add-line' o 'add-polygon')
+    if (mode !== 'browse' && mode !== 'add-point') {
+        return null;
+    }
 
     return (
         <button
             type="button"
             className="flex items-center 
-                        gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
-                        disabled:opacity-50 disabled:cursor-not-allowed p-6 hover:bg-accent"
+                       gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
+                       disabled:opacity-50 disabled:cursor-not-allowed" // Estilos para deshabilitado
             onClick={handleClick}
-            disabled={isDisabled} // Usamos el estado dinámico
+            disabled={isDisabled} // Estado de deshabilitado dinámico
         >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary  text-primary-foreground">
-                {/* Cambiamos el ícono si estamos confirmando */}
-                {mode === 'add-point' && pendingPoint ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                        <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
-                    </svg>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                        <path fillRule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.25h5.25a.75.75 0 0 1 0 1.5H12.75v5.25a.75.75 0 0 1-1.5 0V12.75H5.25a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75z" clipRule="evenodd" />
-                    </svg>
-                )}
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                    <path fillRule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.25h5.25a.75.75 0 0 1 0 1.5H12.75v5.25a.75.75 0 0 1-1.5 0V12.75H5.25a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75z" clipRule="evenodd" />
+                </svg>
             </span>
-            <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
-                {buttonText} {/* Usamos el texto dinámico */}
+            <span className="opacity-0 max-w-0 overflow-hidden transition-all duration-100 group-hover:opacity-100 group-hover:max-w-full">
+                {buttonText} {/* Texto dinámico */}
             </span>
         </button>
     );

@@ -1,144 +1,147 @@
 'use client';
 
-// 1. Importamos los nuevos componentes y hooks necesarios
-import Map, { Marker, type MapLayerMouseEvent, Source, Layer } from 'react-map-gl/maplibre';
+// 1. Importamos los nuevos componentes y tipos necesarios
+import Map, {
+    Marker,
+    type MapLayerMouseEvent,
+    Source,
+    Layer,
+    type CircleLayerSpecification,
+    type LineLayerSpecification,
+    type FillLayerSpecification,
+} from 'react-map-gl/maplibre';
 import { useMapStore } from '@/providers/map-store-provider';
-import type { ViewStateChangeEvent, CircleLayerSpecification, LineLayerSpecification, FillLayerSpecification } from 'react-map-gl/maplibre'; // Importamos tipos para las capas
-import { useCallback, useEffect, useMemo } from 'react'; // Importamos useEffect y useMemo
+import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Container } from './buttons/Container';
 import AddPoint from './buttons/AddPoint';
-import CancelAddPoint from './buttons/CancelAddPoint';
+import CancelAddPoints from './buttons/CancelAddPoints';
 import type { MapStore } from '@/stores/map-store';
-import type { ShapeWithPoints, GeoJSONFeature, GeoJSONFeatureCollection } from '@/types'; // Importamos nuestros tipos GeoJSON
+import type { ShapeWithPoints, GeoJsonFeature, GeoJsonFeatureCollection, GeoJsonGeometry } from '@/types'; // Importamos GeoJsonGeometry
 
-// --- COMPONENTES INTERNOS ---
+// --- COMPONENTE INTERNO ---
 
-// Marcador temporal (cuando se está añadiendo un punto)
 function TemporaryMarker() {
     return (
         <div style={{
             position: 'absolute',
-            transform: 'translate(-50%, -50%)' // Centrado CSS
+            transform: 'translate(-50%, -50%)'
         }}
             className="w-4 h-4 bg-pink-600 border-2 border-white rounded-full cursor-pointer" />
     );
 }
 
-// (Este componente no se usa, pero lo dejamos como estaba en tu archivo)
-function PointBetweenMarkers() {
-    return (
-        <div className="w-2 h-2 bg-pink-600 border-2 border-white rounded-full" />
-    );
-}
+// --- SOLUCIÓN A LOS ERRORES DE TIPO "source" ---
+// Creamos tipos locales que son idénticos a los de MapLibre, pero sin la propiedad 'source'
+type LayerStyleProps<T> = Omit<T, 'source'>;
+// ------------------------------------------
 
 // --- COMPONENTE PRINCIPAL ---
 
 export default function MapComponent() {
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
-    // --- HOOKS DE ZUSTAND (SEPARADOS PARA EVITAR BUCLES) ---
-    // (Esta es la corrección para el error 'Maximum update depth exceeded')
-
-    // Estado de la vista del mapa
+    // --- HOOKS DE ZUSTAND (SEPARADOS) ---
     const viewState = useMapStore((state: MapStore) => state.viewState);
     const setViewState = useMapStore((state: MapStore) => state.setViewState);
-
-    // Estado del modo de edición
     const mode = useMapStore((state: MapStore) => state.mode);
-    const pendingPoint = useMapStore((state: MapStore) => state.pendingPoint);
-    const setPendingPoint = useMapStore((state: MapStore) => state.setPendingPoint);
-
-    // Estado de carga de datos (Paso 4)
+    const pendingPoints = useMapStore((state: MapStore) => state.pendingPoints);
+    const setPendingPoints = useMapStore((state: MapStore) => state.setPendingPoints);
+    const addPendingPoint = useMapStore((state: MapStore) => state.addPendingPoint);
     const shapes = useMapStore((state: MapStore) => state.shapes);
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
     const fetchShapes = useMapStore((state: MapStore) => state.fetchShapes);
 
 
     // --- HOOKS DE REACT ---
-
-    // 2. Llamamos a fetchShapes() solo una vez, cuando el componente se monta
     useEffect(() => {
         fetchShapes();
-    }, [fetchShapes]); // fetchShapes es estable, por lo que esto solo se ejecuta al inicio
+    }, [fetchShapes]);
 
-
-    // Callbacks existentes (para mover el mapa y hacer clic)
     const handleMove = useCallback((evt: ViewStateChangeEvent) => {
         setViewState(evt.viewState);
     }, [setViewState]);
 
     const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
+        const { lng, lat } = evt.lngLat;
+
         if (mode === 'add-point') {
-            const { lng, lat } = evt.lngLat;
-            setPendingPoint({ lng, lat });
+            setPendingPoints([{ lng, lat }]);
         }
-    }, [mode, setPendingPoint]);
 
+        if (mode === 'add-line' || mode === 'add-polygon') {
+            addPendingPoint({ lng, lat });
+        }
 
-    // 3. Convertimos los datos de la API (shapes) a GeoJSON (para el mapa)
-    // Usamos useMemo para que esta conversión solo se ejecute si el array 'shapes' cambia.
+    }, [mode, setPendingPoints, addPendingPoint]);
+
+    // Convertimos los datos de la API (shapes) a GeoJSON (para el mapa)
     const geojson = useMemo(() => {
-        const features: GeoJSONFeature[] = shapes.map((shape: ShapeWithPoints) => {
-            // Mapeamos los puntos a coordenadas [lng, lat]
-            const coordinates = shape.shape_points
-                .sort((a, b) => a.sequence_order - b.sequence_order) // Aseguramos el orden
-                .map(sp => [sp.points.longitude, sp.points.latitude]);
 
-            let geometry: GeoJSONFeature['geometry'];
+        const features: GeoJsonFeature[] = shapes.map((shape: ShapeWithPoints) => {
+
+            const validShapePoints = shape.shape_points.filter(sp => sp.points !== null);
+
+            // Le decimos a TypeScript que el resultado de este map es un array de tuplas [number, number]
+            const coordinates: [number, number][] = validShapePoints
+                .sort((a, b) => a.sequence_order - b.sequence_order)
+                .map(sp => [sp.points!.longitude, sp.points!.latitude] as [number, number]); // Cast explícito
+
+            let geometry: GeoJsonGeometry;
 
             if (shape.type === 'point') {
                 geometry = {
                     type: 'Point',
-                    coordinates: coordinates[0] || [0, 0] // Un punto
+                    // Le decimos a TypeScript que este fallback también es una tupla
+                    coordinates: coordinates[0] || [0, 0] as [number, number]
                 };
             } else if (shape.type === 'line') {
                 geometry = {
                     type: 'LineString',
-                    coordinates: coordinates // Un array de puntos
+                    coordinates: coordinates // Esto ahora es [number, number][] y coincide
                 };
             } else { // 'polygon'
-                // Un polígono de GeoJSON debe estar "cerrado" (el primer y último punto son iguales)
                 if (coordinates.length > 2 &&
                     (coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
                         coordinates[0][1] !== coordinates[coordinates.length - 1][1])) {
-                    coordinates.push(coordinates[0]); // Cerramos el polígono
+                    coordinates.push(coordinates[0]);
                 }
                 geometry = {
                     type: 'Polygon',
-                    coordinates: [coordinates] // Los polígonos van envueltos en un array extra
+                    coordinates: [coordinates] // Esto ahora es [[number, number][]] y coincide
                 };
             }
+            // --------------------------------------------
 
             return {
                 type: 'Feature',
                 geometry: geometry,
-                properties: { // Aquí pasamos datos extra (el id, nombre, y nuestro 'type' interno)
-                    id: shape.id,
-                    name: shape.name,
-                    type: shape.type // Usamos esto para filtrar las capas
-                }
+                properties: shape
             };
         });
 
-        return {
+        const featureCollection: GeoJsonFeatureCollection = {
             type: 'FeatureCollection',
             features: features
         };
-    }, [shapes]); // Esta función solo se re-ejecuta si 'shapes' cambia
+
+
+        return featureCollection;
+    }, [shapes]);
 
 
     // 4. Definimos los estilos para las capas GeoJSON
-    // (Usamos 'as any' para simplificar los tipos, puedes importar los tipos de MapLibre si prefieres)
-    const pointLayerStyle: any = {
+    // Usamos nuestros tipos 'Omit' para que no pidan la propiedad 'source'
+    const pointLayerStyle: LayerStyleProps<CircleLayerSpecification> = {
         id: 'shapes-points',
         type: 'circle',
-        filter: ['==', ['get', 'type'], 'point'], // Solo renderiza si la propiedad 'type' es 'point'
+        filter: ['==', ['get', 'type'], 'point'],
         paint: {
             'circle-radius': 6,
-            'circle-color': '#E91E63' // Mismo color rosa/pink de tu marcador
+            'circle-color': '#E91E63'
         }
     };
-    const lineLayerStyle: any = {
+    const lineLayerStyle: LayerStyleProps<LineLayerSpecification> = {
         id: 'shapes-lines',
         type: 'line',
         filter: ['==', ['get', 'type'], 'line'],
@@ -147,7 +150,7 @@ export default function MapComponent() {
             'line-width': 3
         }
     };
-    const polygonLayerStyle: any = {
+    const polygonLayerStyle: LayerStyleProps<FillLayerSpecification> = {
         id: 'shapes-polygons',
         type: 'fill',
         filter: ['==', ['get', 'type'], 'polygon'],
@@ -173,39 +176,44 @@ export default function MapComponent() {
                 {...viewState}
                 onMove={handleMove}
                 onClick={handleMapClick}
-                cursor={mode === 'add-point' ? 'pointer' : 'grab'}
+                cursor={mode.startsWith('add-') ? 'pointer' : 'grab'}
                 style={{ width: '100%', minWidth: "90vw", height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
             >
-                {/* 5. Renderizamos las formas cargadas desde la API */}
-                <Source id="my-shapes" type="geojson" data={geojson}>
+                {/* Renderizamos las formas cargadas desde la API */}
+                <Source
+                    id="my-shapes"
+                    type="geojson"
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    data={geojson as any}
+                // Mantenemos los estilos que tenías
+                >
                     <Layer {...pointLayerStyle} />
                     <Layer {...lineLayerStyle} />
                     <Layer {...polygonLayerStyle} />
                 </Source>
 
-                {/* Marcador temporal para añadir punto */}
-                {pendingPoint && (
+                {/* Renderizamos los marcadores temporales */}
+                {pendingPoints.map((point, index) => (
                     <Marker
-                        longitude={pendingPoint.lng}
-                        latitude={pendingPoint.lat}
+                        key={index}
+                        longitude={point.lng}
+                        latitude={point.lat}
                         anchor="center"
                     >
                         <TemporaryMarker />
                     </Marker>
-                )}
+                ))}
 
-                {/* Indicador de carga */}
                 {isLoadingShapes && (
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white text-black p-2 rounded shadow-md z-10">
                         Cargando formas...
                     </div>
                 )}
 
-                {/* Botones de control */}
                 <Container>
                     <AddPoint />
-                    <CancelAddPoint />
+                    <CancelAddPoints />
                 </Container>
 
             </Map>

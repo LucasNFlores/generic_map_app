@@ -1,24 +1,24 @@
 'use client';
 
 import { useMapStore } from '@/providers/map-store-provider';
-import type { MapStore } from '@/stores/map-store'; // Importamos el TIPO
+import type { MapStore } from '@/stores/map-store';
 import { useCallback } from 'react';
 
 export default function CancelAddPoint() {
-    // 1. Leemos el estado y acciones con selectores separados
+    // 1. Leemos el estado y acciones con selectores separados (evita bucles)
     const mode = useMapStore((state: MapStore) => state.mode);
     const setMode = useMapStore((state: MapStore) => state.setMode);
-    const setPendingPoint = useMapStore((state: MapStore) => state.setPendingPoint);
+    const setPendingPoints = useMapStore((state: MapStore) => state.setPendingPoints);
 
-    // 2. Función para limpiar el estado y volver al modo "browse"
+    // 2. Función genérica para limpiar CUALQUIER modo de edición
     const handleCancel = useCallback(() => {
         setMode('browse');
-        setPendingPoint(null);
-    }, [setMode, setPendingPoint]);
+        setPendingPoints([]); // Limpiamos el array de puntos pendientes
+    }, [setMode, setPendingPoints]);
 
-    // 3. El botón solo se muestra si estamos en modo "add-point"
-    if (mode !== 'add-point') {
-        return null;
+    // 3. El botón se muestra si estamos en CUALQUIER modo "add-"
+    if (!mode.startsWith('add-')) {
+        return null; // No mostrar nada si estamos en modo 'browse'
     }
 
     return (
