@@ -1,3 +1,4 @@
+// stores/map-store.ts
 import { createStore } from 'zustand/vanilla';
 import type { ViewState } from 'react-map-gl/maplibre';
 import type { ShapeWithPoints } from '@/types';
