@@ -4,10 +4,8 @@ import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import type { Shape, GeoJsonFeature, GeoJsonFeatureCollection } from '@/types';
 import { useMemo } from 'react';
-import { Source, Layer, Marker, type LineLayerSpecification } from 'react-map-gl/maplibre';
-
-// Solución al tipo 'source'
-type LayerStyleProps<T> = Omit<T, 'source'>;
+import { Source, Layer, Marker } from 'react-map-gl/maplibre';
+import { pendingLineStyle } from './styles';
 
 // Marcador para los vértices
 function PendingPointMarker() {
@@ -20,16 +18,6 @@ function PendingPointMarker() {
     );
 }
 
-// Estilo para la línea de previsualización
-const pendingLineStyle: LayerStyleProps<LineLayerSpecification> = {
-    id: 'pending-line-preview',
-    type: 'line',
-    paint: {
-        'line-color': '#E91E63',
-        'line-width': 2,
-        'line-dasharray': [2, 1]
-    }
-};
 
 export function PendingDrawLayer() {
     // 1. Obtenemos solo el estado de dibujo

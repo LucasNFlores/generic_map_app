@@ -4,15 +4,9 @@ import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import type { ShapeWithPoints, GeoJsonFeature, GeoJsonFeatureCollection, GeoJsonGeometry } from '@/types';
 import { useEffect, useMemo } from 'react';
-import { Source, Layer, type CircleLayerSpecification, type LineLayerSpecification, type FillLayerSpecification } from 'react-map-gl/maplibre';
+import { Source, Layer } from 'react-map-gl/maplibre';
+import { pointLayerStyle, lineLayerStyle, polygonLayerStyle } from './styles';
 
-// Solución al tipo 'source'
-type LayerStyleProps<T> = Omit<T, 'source'>;
-
-// Estilos de capas guardadas
-const pointLayerStyle: LayerStyleProps<CircleLayerSpecification> = { id: 'shapes-points', type: 'circle', filter: ['==', ['get', 'type'], 'point'], paint: { 'circle-radius': 6, 'circle-color': '#E91E63' } };
-const lineLayerStyle: LayerStyleProps<LineLayerSpecification> = { id: 'shapes-lines', type: 'line', filter: ['==', ['get', 'type'], 'line'], paint: { 'line-color': '#E91E63', 'line-width': 3 } };
-const polygonLayerStyle: LayerStyleProps<FillLayerSpecification> = { id: 'shapes-polygons', type: 'fill', filter: ['==', ['get', 'type'], 'polygon'], paint: { 'fill-color': '#E91E63', 'fill-opacity': 0.4, 'fill-outline-color': '#E91E63' } };
 
 
 export function SavedShapesLayer() {
