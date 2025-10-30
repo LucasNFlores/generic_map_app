@@ -121,12 +121,12 @@ export default function AddPoint() {
         <button
             type="button"
             className="flex items-center 
-                        gap-2 rounded-md border bg-background pr-3 h-9 w-full text-sm group cursor-pointer select-none
+                        gap-2 rounded-md bg-background pr-3 h-full w-full text-sm group cursor-pointer select-none
                         disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/80 transition-all" // Estilos para deshabilitado
             onClick={handleClick}
             disabled={isDisabled} // Estado de deshabilitado dinámico
         >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary group-hover:bg-primary/80 text-primary-foreground">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary group-hover:bg-primary/80 text-primary-foreground">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                     <path fillRule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.25h5.25a.75.75 0 0 1 0 1.5H12.75v5.25a.75.75 0 0 1-1.5 0V12.75H5.25a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75z" clipRule="evenodd" />
                 </svg>

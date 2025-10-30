@@ -6,6 +6,7 @@ import { Container } from '../buttons/Container';
 import AddPoint from '../buttons/AddPoint';
 import AddLine from '../buttons/AddLine';
 import CancelAddPoint from '../buttons/CancelAddPoints';
+import AddPolygon from '../buttons/AddPolygon';
 
 export function MapUI() {
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
@@ -23,6 +24,7 @@ export function MapUI() {
             <Container>
                 <AddPoint />
                 <AddLine />
+                <AddPolygon />
                 <CancelAddPoint />
             </Container>
         </>
