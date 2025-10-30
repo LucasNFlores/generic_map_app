@@ -120,8 +120,8 @@ export default function AddPoint() {
         <button
             type="button"
             className="flex items-center 
-                       gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
-                       disabled:opacity-50 disabled:cursor-not-allowed" // Estilos para deshabilitado
+                        gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
+                        disabled:opacity-50 disabled:cursor-not-allowed" // Estilos para deshabilitado
             onClick={handleClick}
             disabled={isDisabled} // Estado de deshabilitado dinámico
         >
@@ -130,7 +130,7 @@ export default function AddPoint() {
                     <path fillRule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.25h5.25a.75.75 0 0 1 0 1.5H12.75v5.25a.75.75 0 0 1-1.5 0V12.75H5.25a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75z" clipRule="evenodd" />
                 </svg>
             </span>
-            <span className="opacity-0 max-w-0 overflow-hidden transition-all duration-100 group-hover:opacity-100 group-hover:max-w-full">
+            <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 {buttonText} {/* Texto dinámico */}
             </span>
         </button>
