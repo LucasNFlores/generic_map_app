@@ -121,7 +121,7 @@ export default function AddPoint() {
         <button
             type="button"
             className="flex items-center 
-                        gap-2 rounded-md border bg-background px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
+                        gap-2 rounded-md border bg-background pr-3 h-9 w-full text-sm group cursor-pointer select-none
                         disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/80 transition-all" // Estilos para deshabilitado
             onClick={handleClick}
             disabled={isDisabled} // Estado de deshabilitado dinámico
