@@ -26,7 +26,7 @@ export default function CancelAddPoint() {
             type="button"
             className="flex items-center 
                         gap-2 rounded-md border bg-red-600 text-white px-3 text-sm lg:h-9 lg:px-2 group cursor-pointer select-none
-                        hover:bg-red-700 w-full p-6"
+                        hover:bg-red-700 w-full"
             onClick={handleCancel}
         >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-red-600">
