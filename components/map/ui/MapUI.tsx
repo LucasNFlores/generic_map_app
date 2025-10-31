@@ -2,6 +2,10 @@
 
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
+
+import { Container as ContainerShapeInfo } from "@/components/map/ui/ShapeInfo/Container";
+import Input from '@/components/map/ui/ShapeInfo/Input';
+
 import { Container } from '../buttons/Container';
 import AddPoint from '../buttons/AddPoint';
 import AddLine from '../buttons/AddLine';
@@ -19,8 +23,15 @@ export function MapUI() {
                     Cargando formas...
                 </div>
             )}
+            {/* 2. Informacion de shape o punto */}
+            <ContainerShapeInfo>
 
-            {/* 2. Botones */}
+                <Input label="Nombre" name="shape-name" />
+                <Input label="Nombre" name="shape-name" />
+                <Input label="Nombre" name="shape-name" />
+            </ContainerShapeInfo>
+
+            {/* 3. Botones */}
             <Container>
                 <AddPoint />
                 <AddLine />

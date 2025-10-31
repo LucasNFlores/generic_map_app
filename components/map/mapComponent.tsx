@@ -66,6 +66,7 @@ export default function MapComponent() {
                 {/* 2. Capas y marcadores de dibujo pendientes */}
                 <PendingDrawLayer />
 
+                {/* Otras capas o componentes del mapa pueden ir aquí */}
             </Map>
 
             {/* 3. UI (Botones, loading, etc.) por encima del Mapa */}
