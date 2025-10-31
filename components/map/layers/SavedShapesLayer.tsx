@@ -5,9 +5,7 @@ import type { MapStore } from '@/stores/map-store';
 import type { ShapeWithPoints, GeoJsonFeature, GeoJsonFeatureCollection, GeoJsonGeometry } from '@/types';
 import { useEffect, useMemo } from 'react';
 import { Source, Layer } from 'react-map-gl/maplibre';
-import { pointLayerStyle, lineLayerStyle, polygonLayerStyle } from './styles';
-
-
+import { useMapStyles } from './styles';
 
 export function SavedShapesLayer() {
     // 1. Obtenemos solo lo que necesitamos del store
@@ -19,7 +17,10 @@ export function SavedShapesLayer() {
         fetchShapes();
     }, [fetchShapes]);
 
-    // 3. La transformación de datos (useMemo) ahora vive aquí
+    // 3. Obtenemos los estilos dinámicos
+    const { pointLayerStyle, lineLayerStyle, polygonLayerStyle } = useMapStyles();
+
+    // 4. La transformación de datos (useMemo) ahora vive aquí
     const savedShapesGeojson = useMemo(() => {
         const features: GeoJsonFeature[] = shapes.map((shape: ShapeWithPoints) => {
             const validShapePoints = shape.shape_points.filter(sp => sp.points !== null);
@@ -43,7 +44,7 @@ export function SavedShapesLayer() {
         return { type: 'FeatureCollection', features: features } as GeoJsonFeatureCollection;
     }, [shapes]);
 
-    // 4. Renderizamos solo las capas guardadas
+    // 5. Renderizamos solo las capas guardadas
     return (
         <Source
             id="my-shapes"

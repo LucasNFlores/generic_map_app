@@ -44,8 +44,8 @@ export default forwardRef<HTMLInputElement, InputProps>(function Input({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                    "block w-full px-3 py-2 text-gray-900 bg-background rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer",
-                    { "bg-gray-100": disabled },
+                    "block w-full px-3 py-2 text-primary bg-background rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer",
+                    { "bg-background": disabled },
                     className
                 )}
                 required={required}
@@ -53,7 +53,7 @@ export default forwardRef<HTMLInputElement, InputProps>(function Input({
             />
             <label
                 htmlFor={name}
-                className="absolute hover:cursor-text text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
+                className="absolute hover:cursor-text text-sm text-primary duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-background px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
             >
                 {label}
             </label>
