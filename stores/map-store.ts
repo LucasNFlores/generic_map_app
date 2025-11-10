@@ -34,9 +34,9 @@ export type MapStore = MapState & MapActions;
 // --- 3. Estado Inicial ---
 export const defaultInitialState: MapState = {
 	viewState: {
-		longitude: -58.3816, // Coordenadas de Buenos Aires
-		latitude: -34.6037,
-		zoom: 12,
+		longitude: -54.6612, // Coordenadas de Buenos Aires
+		latitude: -27.0055,
+		zoom: 8,
 		bearing: 0,
 		pitch: 0,
 		padding: { top: 0, bottom: 0, left: 0, right: 0 }
