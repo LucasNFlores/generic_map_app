@@ -1,23 +1,25 @@
-// stores/map-store.ts
 import { createStore } from 'zustand/vanilla';
 import type { ViewState } from 'react-map-gl/maplibre';
 import type { ShapeWithPoints } from '@/types';
 
-// --- Definiciones de Estado  ---
+// --- Definiciones de Estado ---
+// 1. Añadimos el nuevo modo 'edit-shape'
 export type MapMode = 'browse' | 'add-point' | 'add-line' | 'add-polygon' | 'edit-shape';
 export type PendingPoints = Array<{ lat: number; lng: number }>;
 
 
-// --- 1. MapState ---
+// --- 1. MapState (Actualizado) ---
 export type MapState = {
 	viewState: ViewState;
 	mode: MapMode;
 	pendingPoints: PendingPoints;
-	shapes: ShapeWithPoints[]; // Para guardar las formas de la DB
-	isLoadingShapes: boolean; // Para saber si estamos cargando
+	shapes: ShapeWithPoints[];
+	isLoadingShapes: boolean;
+	// 2. Añadimos el estado para la shape seleccionada
+	selectedShape: ShapeWithPoints | null;
 };
 
-// --- 2. MapActions ---
+// --- 2. MapActions (Actualizado) ---
 export type MapActions = {
 	setViewState: (newViewState: ViewState) => void;
 	setMode: (mode: MapMode) => void;
@@ -26,17 +28,19 @@ export type MapActions = {
 	addPendingPoint: (point: { lat: number; lng: number }) => void;
 	clearPendingPoints: () => void;
 
-	fetchShapes: () => Promise<void>; // Acción para llamar a la API
+	fetchShapes: () => Promise<void>;
+	// 3. Añadimos la acción para seleccionar una shape
+	setSelectedShape: (shape: ShapeWithPoints | null) => void;
 };
 
 export type MapStore = MapState & MapActions;
 
-// --- 3. Estado Inicial ---
+// --- 3. Estado Inicial (Actualizado) ---
 export const defaultInitialState: MapState = {
 	viewState: {
-		longitude: -54.6612, // Coordenadas de Buenos Aires
-		latitude: -27.0055,
-		zoom: 8,
+		longitude: -54.6612, // Misiones
+		latitude: -27.0055,  // Misiones
+		zoom: 10,
 		bearing: 0,
 		pitch: 0,
 		padding: { top: 0, bottom: 0, left: 0, right: 0 }
@@ -44,7 +48,8 @@ export const defaultInitialState: MapState = {
 	mode: 'browse',
 	pendingPoints: [],
 	shapes: [],
-	isLoadingShapes: false, // No estamos cargando al inicio
+	isLoadingShapes: false,
+	selectedShape: null, // 4. Estado inicial nulo
 };
 
 export const createMapStore = (
@@ -56,7 +61,7 @@ export const createMapStore = (
 		setViewState: (newViewState) => set({ viewState: newViewState }),
 		setMode: (mode) => set({ mode }),
 		fetchShapes: async () => {
-
+			// ... (tu lógica de fetch existente)
 			try {
 				set({ isLoadingShapes: true });
 				const response = await fetch('/api/shapes');
@@ -74,16 +79,14 @@ export const createMapStore = (
 			}
 		},
 
-		// --- ACCIONES ACTUALIZADAS ---
+		// --- ACCIONES DE PUNTOS PENDIENTES ---
 		setPendingPoints: (points) => set({ pendingPoints: points }),
-
-		// Añade un punto al array existente (para líneas/polígonos)
 		addPendingPoint: (point) => set((state) => ({
 			pendingPoints: [...state.pendingPoints, point]
 		})),
-
-		// Limpia todos los puntos pendientes (para el botón Cancelar)
 		clearPendingPoints: () => set({ pendingPoints: [] }),
+
+		// 5. Implementación de la nueva acción
+		setSelectedShape: (shape) => set({ selectedShape: shape, mode: shape ? 'edit-shape' : 'browse' }),
 	}));
 };
-

@@ -1,11 +1,13 @@
 'use client';
 
+import * as React from 'react'; // Para el 'React is not defined'
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 
-import { Container as ContainerShapeInfo } from "@/components/map/ui/ShapeInfo/Container";
-import Input from '@/components/map/ui/ShapeInfo/Input';
+// Importar el formulario de edición
+import { EditShapeForm } from "@/components/map/ui/ShapeInfo/EditShapeForm";
 
+// Importar el contenedor de botones y los botones
 import { Container } from '../buttons/Container';
 import AddPoint from '../buttons/AddPoint';
 import AddLine from '../buttons/AddLine';
@@ -14,6 +16,9 @@ import AddPolygon from '../buttons/AddPolygon';
 
 export function MapUI() {
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
+    // Traemos SOLO la shape seleccionada
+    const selectedShape = useMapStore((state: MapStore) => state.selectedShape);
+    // (Ya no necesitamos 'mode', como mencionaste)
 
     return (
         <>
@@ -23,21 +28,22 @@ export function MapUI() {
                     Cargando formas...
                 </div>
             )}
-            {/* 2. Informacion de shape o punto */}
-            <ContainerShapeInfo>
 
-                <Input label="Nombre" name="shape-name" />
-                <Input label="Nombre" name="shape-name" />
-                <Input label="Nombre" name="shape-name" />
-            </ContainerShapeInfo>
+            {/* 3. Lógica condicional */}
+            {selectedShape ? (
+                // Si hay una shape seleccionada, mostramos el formulario de edición
+                <EditShapeForm shape={selectedShape} />
 
-            {/* 3. Botones */}
-            <Container>
-                <AddPoint />
-                <AddLine />
-                <AddPolygon />
-                <CancelAddPoint />
-            </Container>
+            ) : (
+                // Si no hay nada seleccionado, mostramos los botones de creación
+                // (Este es el bloque que se había corrompido)
+                <Container>
+                    <AddPoint />
+                    <AddLine />
+                    <AddPolygon />
+                    <CancelAddPoint />
+                </Container>
+            )}
         </>
     );
 }

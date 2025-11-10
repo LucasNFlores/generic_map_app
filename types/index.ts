@@ -3,6 +3,7 @@
 // Tipos ENUM basados en tu base de datos
 export type ShapeType = 'point' | 'line' | 'polygon';
 export type UserRole = 'superadmin' | 'admin' | 'supervisor' | 'invited';
+export type WasteType = 'vidrio' | 'plastico' | 'papel_carton' | 'organico' | 'otro';
 
 // Interfaz para la tabla 'points'
 export interface Point {
@@ -18,8 +19,13 @@ export interface Shape {
     type: ShapeType;
     name: string | null;
     description: string | null;
+    location_address: string | null;
+    waste_type: WasteType | null;
+    image_url: string | null; // (Para el futuro)
+
     creator_id: string; // uuid (FK a auth.users)
     created_at: string; // timestamptz
+
 }
 
 // Interfaz para la tabla 'shape_points' (relación)
@@ -46,6 +52,9 @@ export interface CreateShapePayload {
     type: ShapeType;
     name?: string;
     description?: string;
+    location_address?: string;
+    waste_type?: WasteType;
+
     points: Array<{ latitude: number; longitude: number }>;
 }
 

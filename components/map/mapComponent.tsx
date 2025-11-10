@@ -1,6 +1,7 @@
 'use client';
 
 // 1. Importaciones reducidas
+import * as React from 'react';
 import Map, {
     type MapLayerMouseEvent,
 } from 'react-map-gl/maplibre';
@@ -26,6 +27,10 @@ export default function MapComponent() {
     const setPendingPoints = useMapStore((state: MapStore) => state.setPendingPoints);
     const addPendingPoint = useMapStore((state: MapStore) => state.addPendingPoint);
 
+    // --- Traemos las shapes y la acción de seleccionar ---
+    const shapes = useMapStore((state: MapStore) => state.shapes);
+    const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
+
     // --- MANEJADORES DE EVENTOS ---
     const handleMove = useCallback((evt: ViewStateChangeEvent) => {
         setViewState(evt.viewState);
@@ -33,13 +38,29 @@ export default function MapComponent() {
 
     const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
         const { lng, lat } = evt.lngLat;
+
+        // Primero, vemos si el clic fue sobre una 'feature' (capa interactiva)
+        if (evt.features && evt.features.length > 0) {
+            const clickedFeature = evt.features[0];
+            const shapeId = clickedFeature.properties?.id;
+
+            if (shapeId) {
+                const shapeToSelect = shapes.find(s => s.id === shapeId);
+                if (shapeToSelect) {
+                    setSelectedShape(shapeToSelect); // ¡La seleccionamos en el store!
+                    return; // Detenemos la ejecución
+                }
+            }
+        }
+
+        // Si no se hizo clic en ninguna feature, continuamos con la lógica de dibujo
         if (mode === 'add-point') {
             setPendingPoints([{ lng, lat }]);
         }
         if (mode === 'add-line' || mode === 'add-polygon') {
             addPendingPoint({ lng, lat });
         }
-    }, [mode, setPendingPoints, addPendingPoint]);
+    }, [mode, shapes, setPendingPoints, addPendingPoint, setSelectedShape]);
 
     // --- RENDERIZADO ---
 
