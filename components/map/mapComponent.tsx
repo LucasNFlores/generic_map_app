@@ -1,3 +1,4 @@
+// MapComponent.tsx
 'use client';
 
 // 1. Importaciones reducidas
@@ -7,7 +8,8 @@ import Map, {
 } from 'react-map-gl/maplibre';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
-import { useCallback } from 'react';
+// --- 1. IMPORTAR useMemo ---
+import { useCallback, useMemo } from 'react';
 import type { MapStore } from '@/stores/map-store';
 
 // 2. Importamos los nuevos componentes especializados
@@ -31,15 +33,29 @@ export default function MapComponent() {
     const shapes = useMapStore((state: MapStore) => state.shapes);
     const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
 
+    // --- 2. (NUEVO) Generar la lista de IDs de capas interactivas ---
+    const interactiveLayerIds = useMemo(() => {
+        if (!shapes) return [];
+        // Generamos un array plano con todos los IDs de las 3 capas 
+        // (point, line, polygon) por CADA shape, tal como se definen en SingleShapeLayer.
+        return shapes.flatMap(shape => [
+            `shape-point-${shape.id}`,
+            `shape-line-${shape.id}`,
+            `shape-polygon-${shape.id}`
+        ]);
+    }, [shapes]); // Se recalcula solo si el array de shapes cambia
+
     // --- MANEJADORES DE EVENTOS ---
     const handleMove = useCallback((evt: ViewStateChangeEvent) => {
         setViewState(evt.viewState);
     }, [setViewState]);
 
+    // (Tu handleMapClick está perfecto, no necesita cambios)
     const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
         const { lng, lat } = evt.lngLat;
 
         // Primero, vemos si el clic fue sobre una 'feature' (capa interactiva)
+        // ESTO AHORA DEBERÍA FUNCIONAR
         if (evt.features && evt.features.length > 0) {
             const clickedFeature = evt.features[0];
             const shapeId = clickedFeature.properties?.id;
@@ -80,6 +96,8 @@ export default function MapComponent() {
                 cursor={mode.startsWith('add-') ? 'pointer' : 'grab'}
                 style={{ width: '100%', minWidth: "90vw", height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
+                // --- 3. AÑADIR ESTA LÍNEA ---
+                interactiveLayerIds={interactiveLayerIds}
             >
                 {/* 1. Capas de datos guardados (se encarga de su propio fetch) */}
                 <SavedShapesLayer />

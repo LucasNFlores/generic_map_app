@@ -1,70 +1,18 @@
 'use client';
 
 import * as React from 'react';
+
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
-import type { ShapeWithPoints } from '@/types';
+import { ShapeWithPoints, WASTE_TYPES_LIST } from '@/types';
+
 import { Container as ContainerShapeInfo } from "./Container";
 import Input from './Input';
-import { X } from 'lucide-react'; // Icono para cerrar
+import Textarea from './TextArea';
+import Select from './Select';
+
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-
-// Un componente Textarea simple para los comentarios
-const Textarea = React.forwardRef<HTMLTextAreaElement, any>(function Textarea({ label, name, ...props }, ref) {
-    return (
-        <div className="relative">
-            <textarea
-                ref={ref}
-                id={name}
-                name={name}
-                placeholder=" "
-                rows={3}
-                className="block w-full px-3 py-2 text-primary bg-background rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
-                {...props}
-            />
-            <label
-                htmlFor={name}
-                className="absolute hover:cursor-text text-sm text-primary duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-background px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
-            >
-                {label}
-            </label>
-        </div>
-    );
-});
-
-// Helper para el <select> (para mantener el estilo flotante)
-const Select = React.forwardRef<HTMLSelectElement, any>(function Select({ label, name, children, ...props }, ref) {
-    return (
-        <div className="relative">
-            <select
-                ref={ref}
-                id={name}
-                name={name}
-                className="block w-full px-3 py-2 text-primary bg-background rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
-                {...props}
-            >
-                {children}
-            </select>
-            <label
-                htmlFor={name}
-                className="absolute hover:cursor-text text-sm text-primary duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-background px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
-            >
-                {label}
-            </label>
-        </div>
-    );
-});
-
-
-// Opciones del Select (deben coincidir con tu ENUM de Supabase)
-const wasteTypes: { value: WasteType, label: string }[] = [
-    { value: 'vidrio', label: 'Vidrio' },
-    { value: 'plastico', label: 'Plástico' },
-    { value: 'papel_carton', label: 'Papel/Cartón' },
-    { value: 'organico', label: 'Orgánico' },
-    { value: 'otro', label: 'Otro' },
-];
 
 interface EditShapeFormProps {
     shape: ShapeWithPoints;
@@ -155,7 +103,7 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
                 value={formData.waste_type}
                 onChange={handleChange}
             >
-                {wasteTypes.map(wt => (
+                {WASTE_TYPES_LIST.map(wt => (
                     <option key={wt.value} value={wt.value}>{wt.label}</option>
                 ))}
             </Select>

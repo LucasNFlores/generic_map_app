@@ -1,9 +1,17 @@
 // types/index.ts
 
+export const WASTE_TYPES_LIST = [
+    { value: 'vidrio', label: 'Vidrio' },
+    { value: 'plastico', label: 'Plástico' },
+    { value: 'papel_carton', label: 'Papel/Cartón' },
+    { value: 'organico', label: 'Orgánico' },
+    { value: 'otro', label: 'Otro' },
+] as const;
+
 // Tipos ENUM basados en tu base de datos
 export type ShapeType = 'point' | 'line' | 'polygon';
 export type UserRole = 'superadmin' | 'admin' | 'supervisor' | 'invited';
-export type WasteType = 'vidrio' | 'plastico' | 'papel_carton' | 'organico' | 'otro';
+export type WasteType = (typeof WASTE_TYPES_LIST)[number]['value'];
 
 // Interfaz para la tabla 'points'
 export interface Point {
