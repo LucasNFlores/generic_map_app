@@ -6,13 +6,14 @@ import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import { ShapeWithPoints, WASTE_TYPES_LIST } from '@/types';
 
+// Importar componentes de UI
 import { Container as ContainerShapeInfo } from "./Container";
 import Input from './Input';
 import Textarea from './TextArea';
 import Select from './Select';
+import { toast } from 'react-hot-toast';
 
 import { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
 
 interface EditShapeFormProps {
     shape: ShapeWithPoints;
@@ -56,14 +57,101 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
     // (Lógica de Guardar - Aún no implementada)
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast.error('La función de guardar aún no está implementada.');
-        // Aquí iría la lógica de PUT a /api/shapes/[id]
+
+        // Evitar doble submit
+        if (isLoading || isDeleting) return;
+
+        setIsLoading(true);
+        const saveToast = toast.loading('Guardando cambios...');
+
+        try {
+            const response = await fetch(`/api/shapes/${shape.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData), // Enviamos el estado del formulario
+            });
+
+            toast.dismiss(saveToast);
+
+            if (response.ok) {
+                toast.success('Cambios guardados.');
+
+                // 1. Refrescar el mapa para que muestre la info nueva
+                // (Aunque el color de selección ya lo hace, esto 
+                // actualizaría el 'tooltip' o 'popup' si lo tuvieras)
+                fetchShapes();
+
+                // 2. Opcional: Cierra el formulario tras guardar
+                // setSelectedShape(null); 
+
+                // 3. Opcional: Actualizar el estado local por si el 
+                // usuario sigue editando (si .select() devuelve datos)
+                const updatedShape = await response.json();
+                setFormData({
+                    name: updatedShape.name || '',
+                    description: updatedShape.description || '',
+                    location_address: updatedShape.location_address || '',
+                    waste_type: updatedShape.waste_type || 'otro',
+                });
+
+
+            } else {
+                const errorData = await response.json();
+                console.error('Error al guardar:', errorData);
+                toast.error(errorData.error || 'No se pudo guardar.');
+            }
+
+        } catch (error) {
+            toast.dismiss(saveToast);
+            console.error('Error de red al guardar:', error);
+            toast.error('Error de conexión al guardar.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    // (Lógica de Borrar - Aún no implementada)
+    // --- (Lógica de Borrar) ---
     const handleDelete = async () => {
-        toast.error('La función de borrar aún no está implementada.');
-        // Aquí iría la lógica de DELETE a /api/shapes/[id]
+        // Confirmación simple
+        if (!window.confirm('¿Estás seguro de que quieres eliminar esta forma? Esta acción no se puede deshacer.')) {
+            return;
+        }
+
+        setIsDeleting(true);
+        const deleteToast = toast.loading('Eliminando forma...');
+
+        try {
+            const response = await fetch(`/api/shapes/${shape.id}`, {
+                method: 'DELETE',
+            });
+
+            toast.dismiss(deleteToast); // Quita el "Eliminando forma..."
+
+            if (response.ok) {
+                toast.success('Forma eliminada correctamente.');
+
+                // 1. Cierra el formulario
+                setSelectedShape(null);
+
+                // 2. Refresca los datos del mapa
+                fetchShapes();
+
+            } else {
+                // Error de la API (401, 500, etc.)
+                const errorData = await response.json();
+                console.error('Error al eliminar:', errorData);
+                toast.error(errorData.error || 'No se pudo eliminar la forma.');
+            }
+
+        } catch (error) {
+            toast.dismiss(deleteToast);
+            console.error('Error de red al eliminar:', error);
+            toast.error('Error de conexión al intentar eliminar.');
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -119,14 +207,15 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
                 <button
                     type="button"
                     onClick={handleDelete}
-                    disabled={isDeleting}
+                    disabled={isDeleting} // (Deshabilitado mientras borra)
                     className="w-1/3 text-sm text-destructive hover:text-destructive/80 disabled:opacity-50"
                 >
                     {isDeleting ? 'Borrando...' : 'Eliminar'}
                 </button>
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    // (Deshabilitado si está guardando O borrando)
+                    disabled={isLoading || isDeleting}
                     className="w-2/3 h-10 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
                 >
                     {isLoading ? 'Guardando...' : 'Guardar Cambios'}
