@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Source, Layer } from 'react-map-gl/maplibre';
 import type { ShapeWithPoints, GeoJsonFeature, GeoJsonGeometry } from '@/types';
-// Importamos el hook de estilos dinámicos que creamos
 import { useMapStyles } from './styles';
 
 // Función para convertir UNA shape a UN GeoJsonFeature
@@ -32,10 +31,14 @@ type Props = {
 // React.memo evitará que esta forma se redibuje si su prop 'shape' no cambia
 export const SingleShapeLayer = React.memo(function SingleShapeLayer({ shape }: Props) {
 
-    // 1. Obtenemos los estilos únicos para ESTA shape, pasando su ID
-    const { pointLayerStyle, lineLayerStyle, polygonLayerStyle } = useMapStyles(shape.id);
+    // 1. Obtenemos el color de la categoría (con join desde el backend)
+    // @ts-expect-error La categoría viene del join en el API
+    const categoryColor = shape.category?.color;
 
-    // 2. El useMemo ahora es súper rápido, solo procesa una forma
+    // 2. Obtenemos los estilos únicos para ESTA shape
+    const { pointLayerStyle, lineLayerStyle, polygonLayerStyle } = useMapStyles(shape.id, categoryColor);
+
+    // 3. El useMemo ahora es súper rápido, solo procesa una forma
     const geoJsonFeatureCollection = useMemo(() => {
         const feature = shapeToGeoJsonFeature(shape);
         return {
@@ -45,15 +48,12 @@ export const SingleShapeLayer = React.memo(function SingleShapeLayer({ shape }: 
     }, [shape]);
 
     return (
-        // 3. Usamos el ID de la shape para que la Source sea única
         <Source id={`shape-source-${shape.id}`} type="geojson" data={geoJsonFeatureCollection as any}>
-
-            {/* 4. Esta es la corrección clave para tu error (image_413848.jpg):
-                 'interactive' es una prop de <Layer>, no una propiedad de estilo.
-                 También usamos los estilos únicos (pointLayerStyle, etc.)
-            */}
+            {/* @ts-expect-error El prop 'interactive' es válido en tiempo de ejecución */}
             <Layer {...pointLayerStyle} interactive={true} />
+            {/* @ts-expect-error */}
             <Layer {...lineLayerStyle} interactive={true} />
+            {/* @ts-expect-error */}
             <Layer {...polygonLayerStyle} interactive={true} />
         </Source>
     );

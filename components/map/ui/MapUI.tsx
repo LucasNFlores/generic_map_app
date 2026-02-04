@@ -16,9 +16,13 @@ import AddPolygon from '../buttons/AddPolygon';
 
 export function MapUI() {
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
-    // Traemos SOLO la shape seleccionada
+    const fetchCategories = useMapStore((state: MapStore) => state.fetchCategories);
     const selectedShape = useMapStore((state: MapStore) => state.selectedShape);
-    // (Ya no necesitamos 'mode', como mencionaste)
+
+    // Cargar categorías al montar la UI
+    React.useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
     return (
         <>

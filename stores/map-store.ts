@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import type { ViewState } from 'react-map-gl/maplibre';
-import type { ShapeWithPoints } from '@/types';
+import type { ShapeWithPoints, Category } from '@/types';
 
 // --- Definiciones de Estado ---
 // 1. Añadimos el nuevo modo 'edit-shape'
@@ -14,7 +14,10 @@ export type MapState = {
 	mode: MapMode;
 	pendingPoints: PendingPoints;
 	shapes: ShapeWithPoints[];
+	categories: Category[]; // Nuevo: Lista de categorías dinámicas
+	selectedCategory: Category | null; // Nuevo: Categoría seleccionada para creación
 	isLoadingShapes: boolean;
+	isLoadingCategories: boolean;
 	// 2. Añadimos el estado para la shape seleccionada
 	selectedShape: ShapeWithPoints | null;
 };
@@ -29,6 +32,8 @@ export type MapActions = {
 	clearPendingPoints: () => void;
 
 	fetchShapes: () => Promise<void>;
+	fetchCategories: () => Promise<void>;
+	setSelectedCategory: (category: Category | null) => void;
 	// 3. Añadimos la acción para seleccionar una shape
 	setSelectedShape: (shape: ShapeWithPoints | null) => void;
 };
@@ -48,7 +53,10 @@ export const defaultInitialState: MapState = {
 	mode: 'browse',
 	pendingPoints: [],
 	shapes: [],
+	categories: [],
+	selectedCategory: null,
 	isLoadingShapes: false,
+	isLoadingCategories: false,
 	selectedShape: null, // 4. Estado inicial nulo
 };
 
@@ -66,8 +74,7 @@ export const createMapStore = (
 				set({ isLoadingShapes: true });
 				const response = await fetch('/api/shapes');
 				if (!response.ok) {
-					const err = await response.json();
-					throw new Error(err.error || 'Error al obtener las formas');
+					throw new Error('Error al obtener las formas');
 				}
 				const data: ShapeWithPoints[] = await response.json();
 				set({ shapes: data });
@@ -78,6 +85,26 @@ export const createMapStore = (
 				set({ isLoadingShapes: false });
 			}
 		},
+
+		fetchCategories: async () => {
+			try {
+				set({ isLoadingCategories: true });
+				const response = await fetch('/api/categories');
+				if (!response.ok) throw new Error('Error al obtener categorías');
+				const data: Category[] = await response.json();
+				set({ categories: data });
+				if (data.length > 0 && !initState.selectedCategory) {
+					set({ selectedCategory: data[0] });
+				}
+			} catch (error) {
+				console.error('fetchCategories error:', error);
+				set({ categories: [] });
+			} finally {
+				set({ isLoadingCategories: false });
+			}
+		},
+
+		setSelectedCategory: (category) => set({ selectedCategory: category }),
 
 		// --- ACCIONES DE PUNTOS PENDIENTES ---
 		setPendingPoints: (points) => set({ pendingPoints: points }),
