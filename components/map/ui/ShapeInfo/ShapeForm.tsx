@@ -155,7 +155,7 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
                 </button>
             </div>
 
-            <div className="flex flex-col gap-4 mt-2">
+            <div className="flex flex-col gap-5 mt-2 w-full">
                 <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} required />
 
                 <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange} required>
