@@ -12,6 +12,7 @@ export default function AddPoint() {
     // --- 1. Leemos todos los estados y acciones necesarios del store ---
     const mode = useMapStore((state: MapStore) => state.mode);
     const setMode = useMapStore((state: MapStore) => state.setMode);
+    const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
 
     // Usamos el nuevo array 'pendingPoints'
     const pendingPoints = useMapStore((state: MapStore) => state.pendingPoints);
@@ -29,57 +30,29 @@ export default function AddPoint() {
             return; // No hacemos nada más, solo cambiamos de modo
         }
 
-        // --- CASO 2: Estamos en modo 'add-point', queremos confirmar y guardar ---
+        // --- CASO 2: Estamos en modo 'add-point', queremos confirmar y abrir el formulario ---
         if (mode === 'add-point') {
-
-            // Verificación: ¿Hay un punto seleccionado?
             if (pendingPoints.length === 0) {
                 toast.error('Por favor, haz clic en el mapa para seleccionar una ubicación.');
                 return;
             }
 
-            if (isLoading) return; // Evitar doble clic
-            setIsLoading(true);
-            const toastId = toast.loading('Guardando punto...');
+            // En lugar de guardar directo, creamos una "shape" temporal y la seleccionamos
+            const point = pendingPoints[0];
+            const draftShape: any = {
+                id: '', // Empty ID means it's a NEW shape
+                type: 'point',
+                name: '',
+                description: '',
+                metadata: {},
+                shape_points: [
+                    { sequence_order: 1, points: { latitude: point.lat, longitude: point.lng } }
+                ]
+            };
 
-            try {
-                // Tomamos el primer (y único) punto del array
-                const point = pendingPoints[0];
-
-                // Preparamos el payload para nuestra API
-                const payload = {
-                    type: 'point',
-                    name: `Punto (${point.lat.toFixed(4)}, ${point.lng.toFixed(4)})`,
-                    description: '',
-                    points: [{ latitude: point.lat, longitude: point.lng }]
-                };
-
-                // Llamamos al endpoint de la API
-                const response = await fetch('/api/shapes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error al guardar el punto');
-                }
-
-                toast.success('Punto guardado con éxito', { id: toastId });
-
-                // Reseteamos el estado a 'browse'
-                setMode('browse');
-                clearPendingPoints(); // Limpiamos el punto temporal
-                fetchShapes(); // Recargamos las formas en el mapa
-
-            } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error';
-                toast.error(errorMessage, { id: toastId });
-                console.error(error);
-            } finally {
-                setIsLoading(false); // Reactivar el botón
-            }
+            // Seleccionamos la shape (esto abrirá el ShapeForm en MapUI)
+            setSelectedShape(draftShape);
+            return;
         }
 
         // Aquí se añadiría la lógica futura para 'add-line' y 'add-polygon'

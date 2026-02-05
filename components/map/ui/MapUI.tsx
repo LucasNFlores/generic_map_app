@@ -4,8 +4,8 @@ import * as React from 'react'; // Para el 'React is not defined'
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 
-// Importar el formulario de edición
-import { EditShapeForm } from "@/components/map/ui/ShapeInfo/EditShapeForm";
+// Importar el formulario universal
+import { ShapeForm } from "@/components/map/ui/ShapeInfo/ShapeForm";
 
 // Importar el contenedor de botones y los botones
 import { Container } from '../buttons/Container';
@@ -18,6 +18,8 @@ export function MapUI() {
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
     const fetchCategories = useMapStore((state: MapStore) => state.fetchCategories);
     const selectedShape = useMapStore((state: MapStore) => state.selectedShape);
+    const mode = useMapStore((state: MapStore) => state.mode);
+    const pendingPoints = useMapStore((state: MapStore) => state.pendingPoints);
 
     // Cargar categorías al montar la UI
     React.useEffect(() => {
@@ -35,12 +37,13 @@ export function MapUI() {
 
             {/* 3. Lógica condicional */}
             {selectedShape ? (
-                // Si hay una shape seleccionada, mostramos el formulario de edición
-                <EditShapeForm shape={selectedShape} />
-
+                // Si hay una shape seleccionada (edición o creación confirmada)
+                <ShapeForm
+                    shape={selectedShape}
+                    isNew={!selectedShape.id}
+                />
             ) : (
                 // Si no hay nada seleccionado, mostramos los botones de creación
-                // (Este es el bloque que se había corrompido)
                 <Container>
                     <AddPoint />
                     <AddLine />

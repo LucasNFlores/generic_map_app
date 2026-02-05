@@ -2,7 +2,8 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import type { CreateShapePayload } from '@/types';
+import type { CreateShapePayload, FormFieldDefinition } from '@/types';
+import { getNextIdForCategory } from '@/lib/auto-id-generator';
 
 export async function POST(request: Request) {
     const supabase = await createClient();
@@ -20,14 +21,38 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'category_id, type and points are required.' }, { status: 400 });
         }
 
-        // Llamar a la función RPC actualizada
+        // Obtener la categoría para procesar campos auto_id
+        const { data: category, error: catError } = await supabase
+            .from('categories')
+            .select('fields_definition')
+            .eq('id', payload.category_id)
+            .single();
+
+        if (catError) {
+            console.error('Error fetching category:', catError);
+            return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+        }
+
+        // Procesar campos auto_id
+        const metadata = payload.metadata ?? {};
+        const fieldsDefinition = (category.fields_definition as FormFieldDefinition[]) ?? [];
+
+        for (const field of fieldsDefinition) {
+            if (field.type === 'auto_id') {
+                // Generar el siguiente ID para este campo
+                const nextId = await getNextIdForCategory(payload.category_id, field.id);
+                metadata[field.id] = nextId;
+            }
+        }
+
+        // Llamar a la función RPC actualizada con metadata completa
         const { data: rpcData, error: rpcError } = await supabase.rpc('create_shape_with_points', {
             p_category_id: payload.category_id,
             p_shape_type: payload.type,
             p_name: payload.name ?? null,
             p_description: payload.description ?? null,
             p_location_address: payload.location_address ?? null,
-            p_metadata: payload.metadata ?? {},
+            p_metadata: metadata,
             p_points_data: payload.points
         });
 

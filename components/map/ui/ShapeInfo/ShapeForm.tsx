@@ -11,12 +11,15 @@ import Select from './Select';
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 
-interface EditShapeFormProps {
+interface ShapeFormProps {
     shape: ShapeWithPoints;
+    isNew?: boolean;
 }
 
-export function EditShapeForm({ shape }: EditShapeFormProps) {
+export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
     const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
+    const setMode = useMapStore((state: MapStore) => state.setMode);
+    const clearPendingPoints = useMapStore((state: MapStore) => state.clearPendingPoints);
     const fetchShapes = useMapStore((state: MapStore) => state.fetchShapes);
     const categories = useMapStore((state: MapStore) => state.categories);
 
@@ -24,7 +27,7 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
         name: shape.name || '',
         description: shape.description || '',
         location_address: shape.location_address || '',
-        category_id: shape.category_id || '',
+        category_id: shape.category_id || (categories.length > 0 ? categories[0].id : ''),
         metadata: shape.metadata || {},
     });
 
@@ -36,12 +39,16 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
             name: shape.name || '',
             description: shape.description || '',
             location_address: shape.location_address || '',
-            category_id: shape.category_id || '',
+            category_id: shape.category_id || (categories.length > 0 ? categories[0].id : ''),
             metadata: shape.metadata || {},
         });
-    }, [shape]);
+    }, [shape, categories]);
 
-    const handleClose = () => setSelectedShape(null);
+    const handleClose = () => {
+        setSelectedShape(null);
+        setMode('browse');
+        clearPendingPoints();
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -61,20 +68,35 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
         e.preventDefault();
         if (isLoading || isDeleting) return;
 
+        if (!formData.category_id) {
+            toast.error('Debes seleccionar una categoría.');
+            return;
+        }
+
         setIsLoading(true);
-        const saveToast = toast.loading('Guardando cambios...');
+        const saveToast = toast.loading(isNew ? 'Creando...' : 'Guardando cambios...');
 
         try {
-            const response = await fetch(`/api/shapes/${shape.id}`, {
-                method: 'PATCH',
+            const url = isNew ? '/api/shapes' : `/api/shapes/${shape.id}`;
+            const method = isNew ? 'POST' : 'PATCH';
+
+            const payload = isNew ? {
+                ...formData,
+                type: shape.type,
+                points: shape.shape_points.map(sp => sp.points)
+            } : formData;
+
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             toast.dismiss(saveToast);
 
             if (response.ok) {
-                toast.success('Cambios guardados.');
+                toast.success(isNew ? 'Forma creada correctamente.' : 'Cambios guardados.');
+                handleClose();
                 fetchShapes();
             } else {
                 const errorData = await response.json();
@@ -89,6 +111,11 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
     };
 
     const handleDelete = async () => {
+        if (isNew) {
+            handleClose();
+            return;
+        }
+
         if (!window.confirm('¿Estás seguro de que quieres eliminar esta forma?')) return;
 
         setIsDeleting(true);
@@ -100,7 +127,7 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
 
             if (response.ok) {
                 toast.success('Forma eliminada correctamente.');
-                setSelectedShape(null);
+                handleClose();
                 fetchShapes();
             } else {
                 const errorData = await response.json();
@@ -118,7 +145,8 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
         <ContainerShapeInfo onSubmit={handleSubmit}>
             <div className="flex justify-between items-center w-full mb-2">
                 <h3 className="text-lg font-semibold text-primary">
-                    {shape.type === 'point' ? 'Editar Punto' : 'Editar Forma'}
+                    {isNew ? 'Nueva ' : 'Editar '}
+                    {shape.type === 'point' ? 'Punto' : shape.type === 'line' ? 'Línea' : 'Polígono'}
                 </h3>
                 <button type="button" onClick={handleClose} className="text-muted-foreground hover:text-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
@@ -127,9 +155,9 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
                 </button>
             </div>
 
-            <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} />
+            <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} required />
 
-            <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange}>
+            <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange} required>
                 <option value="">Seleccionar categoría...</option>
                 {categories.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -138,8 +166,8 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
 
             <Input label="Ubicación" name="location_address" value={formData.location_address} onChange={handleChange} />
 
-            {/* CAMPOS DINÁMICOS BASADOS EN LA CATEGORÍA */}
-            {selectedCategory?.fields_definition?.map(field => (
+            {/* CAMPOS DINÁMICOS BASADOS EN LA CATEGORÍA (excluyendo auto_id) */}
+            {selectedCategory?.fields_definition?.filter(field => field.type !== 'auto_id').map(field => (
                 <div key={field.id} className="mt-2 text-primary">
                     {field.type === 'select' ? (
                         <Select
@@ -169,10 +197,10 @@ export function EditShapeForm({ shape }: EditShapeFormProps) {
 
             <div className="flex gap-2 w-full mt-2">
                 <button type="button" onClick={handleDelete} disabled={isDeleting} className="w-1/3 text-sm text-destructive hover:text-destructive/80 disabled:opacity-50">
-                    {isDeleting ? 'Borrando...' : 'Eliminar'}
+                    {isNew ? 'Cancelar' : isDeleting ? 'Borrando...' : 'Eliminar'}
                 </button>
                 <button type="submit" disabled={isLoading || isDeleting} className="w-2/3 h-10 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
-                    {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+                    {isLoading ? 'Cargando...' : isNew ? 'Crear' : 'Guardar Cambios'}
                 </button>
             </div>
         </ContainerShapeInfo>

@@ -5,8 +5,7 @@ import type { MapStore } from '@/stores/map-store';
 import type { Shape, GeoJsonFeature, GeoJsonFeatureCollection } from '@/types';
 import { useMemo } from 'react';
 import { Source, Layer, Marker } from 'react-map-gl/maplibre';
-import { useMapStyles } from './styles';
-
+import { pendingLineStyle } from './styles';
 
 // Marcador para los vértices
 function PendingPointMarker() {
@@ -18,7 +17,6 @@ function PendingPointMarker() {
             className="w-4 h-4 bg-pink-600 border-2 border-white rounded-full cursor-pointer" />
     );
 }
-
 
 export function PendingDrawLayer() {
     // 1. Obtenemos solo el estado de dibujo
@@ -47,9 +45,6 @@ export function PendingDrawLayer() {
             features: [feature]
         } as GeoJsonFeatureCollection;
     }, [pendingPoints, mode]);
-
-    // Obtenemos los estilos dinámicos
-    const { pendingLineStyle } = useMapStyles();
 
     // 3. Renderizamos la línea de previsualización Y los marcadores
     return (

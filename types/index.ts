@@ -2,7 +2,7 @@
 
 // --- 1. CONFIGURACIÓN DINÁMICA DE FORMULARIOS ---
 
-export type FormFieldType = 'text' | 'number' | 'select' | 'boolean' | 'date';
+export type FormFieldType = 'auto_id' | 'text' | 'number' | 'select' | 'boolean' | 'date';
 
 export interface FormFieldDefinition {
     id: string;
@@ -10,6 +10,7 @@ export interface FormFieldDefinition {
     type: FormFieldType;
     options?: string[]; // Solo para tipo 'select'
     required?: boolean;
+    visible?: boolean; // Solo para tipo 'auto_id' - define si se muestra en la UI
     placeholder?: string;
     defaultValue?: any;
 }
@@ -46,10 +47,10 @@ export interface Shape {
     name: string | null;
     description: string | null;
     location_address: string | null;
-    
+
     // Metadata dinámica según la definición de la categoría
     metadata: Record<string, any>;
-    
+
     creator_id: string;
     created_at: string;
     updated_at: string;

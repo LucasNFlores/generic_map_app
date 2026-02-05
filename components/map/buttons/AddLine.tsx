@@ -12,6 +12,7 @@ export default function AddLine() {
     // --- 1. Leemos todos los estados y acciones necesarios del store ---
     const mode = useMapStore((state: MapStore) => state.mode);
     const setMode = useMapStore((state: MapStore) => state.setMode);
+    const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
     const pendingPoints = useMapStore((state: MapStore) => state.pendingPoints);
     const clearPendingPoints = useMapStore((state: MapStore) => state.clearPendingPoints);
     const fetchShapes = useMapStore((state: MapStore) => state.fetchShapes);
@@ -25,55 +26,27 @@ export default function AddLine() {
             return;
         }
 
-        // --- CASO 2: Estamos en modo 'add-line', queremos confirmar y guardar ---
+        // --- CASO 2: Estamos en modo 'add-line', queremos confirmar y abrir formulario ---
         if (mode === 'add-line') {
-
-            // Verificación: ¿Hay al menos 2 puntos seleccionados?
             if (pendingPoints.length < 2) {
                 toast.error('Necesitas al menos 2 puntos para una línea.');
                 return;
             }
 
-            if (isLoading) return;
-            setIsLoading(true);
-            const toastId = toast.loading('Guardando línea...');
+            const draftShape: any = {
+                id: '',
+                type: 'line',
+                name: '',
+                description: '',
+                metadata: {},
+                shape_points: pendingPoints.map((p, i) => ({
+                    sequence_order: i + 1,
+                    points: { latitude: p.lat, longitude: p.lng }
+                }))
+            };
 
-            try {
-                // Preparamos el payload para nuestra API
-                const payload = {
-                    type: 'line', // Tipo 'line'
-                    name: `Línea (${pendingPoints.length} puntos)`,
-                    description: '',
-                    // Enviamos TODOS los puntos del array
-                    points: pendingPoints.map(p => ({ latitude: p.lat, longitude: p.lng }))
-                };
-
-                // Llamamos al endpoint de la API
-                const response = await fetch('/api/shapes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error al guardar la línea');
-                }
-
-                toast.success('Línea guardada con éxito', { id: toastId });
-
-                // Reseteamos el estado a 'browse'
-                setMode('browse');
-                clearPendingPoints(); // Limpiamos los puntos temporales
-                fetchShapes(); // Recargamos las formas en el mapa
-
-            } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error';
-                toast.error(errorMessage, { id: toastId });
-                console.error(error);
-            } finally {
-                setIsLoading(false); // Reactivar el botón
-            }
+            setSelectedShape(draftShape);
+            return;
         }
 
     }, [mode, isLoading, setMode, pendingPoints, clearPendingPoints, fetchShapes]);
