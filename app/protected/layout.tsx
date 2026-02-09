@@ -25,29 +25,24 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center w-screen">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-
-        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold">
-              <Link href={"/protected"}>Mapa generico</Link>
-              <Link href={"/protected/map"}>Mapa</Link>
-              {role === 'superadmin' && (
-                <Link href={"/protected/admin"} className="text-primary hover:opacity-80 transition-opacity">
-                  Panel Admin
-                </Link>
-              )}
-              <ThemeSwitcher />
-
-            </div>
-            {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+    <main className="h-screen flex flex-col w-screen overflow-hidden">
+      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 flex-none">
+        <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
+          <div className="flex gap-5 items-center font-semibold">
+            <Link href={"/protected"}>Mapa generico</Link>
+            <Link href={"/protected/map"}>Mapa</Link>
+            {role === 'superadmin' && (
+              <Link href={"/protected/admin"} className="text-primary hover:opacity-80 transition-opacity">
+                Panel Admin
+              </Link>
+            )}
+            <ThemeSwitcher />
           </div>
-        </nav>
+          {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+        </div>
+      </nav>
 
-      </div>
-
-      <div id="container main" className="w-full flex-1 flex flex-col">
+      <div id="container main" className="w-full flex-1 flex flex-col overflow-hidden">
         {children}
       </div>
     </main>

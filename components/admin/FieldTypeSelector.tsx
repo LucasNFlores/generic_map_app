@@ -48,7 +48,7 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
     return (
         <div className="space-y-6">
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Basic Inputs</label>
+                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Tipos simple</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
                         { id: 'text', label: 'Texto corto', icon: <Type size={18} /> },
@@ -65,13 +65,13 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
             </div>
 
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Selection</label>
+                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Selección</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
-                        { id: 'select', label: 'Single Select', icon: <List size={18} />, color: 'text-emerald-500' },
-                        { id: 'multi_select', label: 'Multi-select', icon: <Layers size={18} />, color: 'text-cyan-500' },
+                        { id: 'select', label: 'Selector único', icon: <List size={18} />, color: 'text-emerald-500' },
+                        { id: 'multi_select', label: 'Selector múltiple', icon: <Layers size={18} />, color: 'text-cyan-500' },
                         { id: 'boolean', label: 'Checkbox', icon: <ToggleRight size={18} />, color: 'text-purple-500' },
-                        { id: 'date', label: 'Date', icon: <Calendar size={18} />, color: 'text-blue-500' },
+                        { id: 'date', label: 'Fecha', icon: <Calendar size={18} />, color: 'text-blue-500' },
                     ].map((typeOption) => (
                         <FieldTypeButton
                             key={typeOption.id}
@@ -84,7 +84,7 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
             </div>
 
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Advanced</label>
+                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Avanzado</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
                         { id: 'auto_id', label: 'Auto-ID', icon: <Fingerprint size={18} />, color: 'text-orange-500' },

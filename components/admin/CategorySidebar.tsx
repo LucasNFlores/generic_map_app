@@ -84,7 +84,7 @@ export function CategorySidebar({
                     onClick={onNewCategory}
                 >
                     <Plus size={18} className="mr-2" />
-                    New Category
+                    Nueva categoria
                 </Button>
             </div>
         </aside>

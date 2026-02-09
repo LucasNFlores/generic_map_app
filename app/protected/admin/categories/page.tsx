@@ -80,58 +80,7 @@ export default function CategoriesAdminPage() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-[#101622] text-white overflow-hidden font-sans">
-            {/* Header */}
-            <header className="flex-none flex items-center justify-between border-b border-[#222f49] px-6 py-3 bg-[#101623] z-20">
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-3">
-                        <div className="size-8 flex items-center justify-center bg-primary/20 rounded-lg text-primary">
-                            <Hexagon size={20} />
-                        </div>
-                        <h2 className="text-lg font-bold tracking-tight">GeoAdmin</h2>
-                    </div>
-
-                    <div className="h-6 w-px bg-[#222f49] mx-2" />
-
-                    <div className="flex items-center gap-2 text-sm">
-                        <Link href="/protected/admin" className="text-[#90a4cb] hover:text-white transition-colors">
-                            Admin
-                        </Link>
-                        <ChevronRight size={16} className="text-[#90a4cb]" />
-                        <span className="text-primary font-medium bg-primary/10 px-2 py-0.5 rounded">
-                            Categories
-                        </span>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="text-[#90a4cb] hover:text-white">
-                            <Search size={20} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-[#90a4cb] hover:text-white relative">
-                            <Bell size={20} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#101623]" />
-                        </Button>
-                    </div>
-
-                    <div className="h-8 w-px bg-[#222f49] mx-2" />
-
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="outline"
-                            className="border-[#222f49] text-white hover:bg-white/5"
-                            asChild
-                        >
-                            <Link href="/protected/map">
-                                <ArrowLeft size={16} className="mr-2" />
-                                Back to Map
-                            </Link>
-                        </Button>
-
-                    </div>
-                </div>
-            </header>
+        <div className="flex flex-col h-full bg-[#101622] text-white overflow-hidden font-sans">
 
             {/* Main Workspace */}
             <div className="flex flex-1 overflow-hidden relative">
@@ -169,7 +118,7 @@ export default function CategoriesAdminPage() {
                                         disabled={isSaving}
                                     >
                                         <Save size={18} className="mr-2" />
-                                        {isSaving ? 'Saving...' : 'Save Schema'}
+                                        {isSaving ? 'Guardando...' : 'Guardar'}
                                     </Button>
                                 </div>
                             </div>
