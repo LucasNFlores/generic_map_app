@@ -22,6 +22,7 @@ export function CategoryForm({ category, onSuccess, onCancel }: CategoryFormProp
     const [fields, setFields] = React.useState<FormFieldDefinition[]>(
         category?.fields_definition || []
     );
+    const [selectedFieldId, setSelectedFieldId] = React.useState<string>('');
     const [loading, setLoading] = React.useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -119,7 +120,12 @@ export function CategoryForm({ category, onSuccess, onCancel }: CategoryFormProp
             </div>
 
             <div className="border-t pt-4">
-                <FieldDefinitionBuilder fields={fields} onChange={setFields} />
+                <FieldDefinitionBuilder
+                    fields={fields}
+                    onChange={setFields}
+                    selectedFieldId={selectedFieldId}
+                    onSelectField={setSelectedFieldId}
+                />
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t">
