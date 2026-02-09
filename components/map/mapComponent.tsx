@@ -88,13 +88,13 @@ export default function MapComponent() {
     const mapStyle = `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`;
 
     return (
-        <div id="mapContainer" className="relative px-5 rounded-s-3xl overflow-hidden h-[calc(100vh-6rem)]">
+        <div id="mapContainer" className="relative w-full h-full flex-1 overflow-hidden">
             <Map
                 {...viewState}
                 onMove={handleMove}
                 onClick={handleMapClick}
                 cursor={mode.startsWith('add-') ? 'pointer' : 'grab'}
-                style={{ width: '100%', minWidth: "90vw", height: '100%', minHeight: '400px' }}
+                style={{ width: '100%', height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
                 // --- 3. AÑADIR ESTA LÍNEA ---
                 interactiveLayerIds={interactiveLayerIds}
