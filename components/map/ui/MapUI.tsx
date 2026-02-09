@@ -14,7 +14,11 @@ import AddLine from '../buttons/AddLine';
 import CancelAddPoint from '../buttons/CancelAddPoints';
 import AddPolygon from '../buttons/AddPolygon';
 
-export function MapUI() {
+interface MapUIProps {
+    isReadOnly?: boolean;
+}
+
+export function MapUI({ isReadOnly = false }: MapUIProps) {
     const isLoadingShapes = useMapStore((state: MapStore) => state.isLoadingShapes);
     const fetchCategories = useMapStore((state: MapStore) => state.fetchCategories);
     const selectedShape = useMapStore((state: MapStore) => state.selectedShape);
@@ -25,6 +29,11 @@ export function MapUI() {
     React.useEffect(() => {
         fetchCategories();
     }, [fetchCategories]);
+
+    // Si es solo lectura, no mostramos NADA de la UI de edición
+    if (isReadOnly) {
+        return null;
+    }
 
     return (
         <>

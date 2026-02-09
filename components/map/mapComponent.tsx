@@ -19,7 +19,11 @@ import { MapUI } from './ui/MapUI';
 
 // --- COMPONENTE PRINCIPAL ---
 
-export default function MapComponent() {
+interface MapComponentProps {
+    isReadOnly?: boolean;
+}
+
+export default function MapComponent({ isReadOnly = false }: MapComponentProps) {
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
     // --- HOOKS DE ZUSTAND (Solo los necesarios para el mapa base) ---
@@ -35,7 +39,7 @@ export default function MapComponent() {
 
     // --- 2. (NUEVO) Generar la lista de IDs de capas interactivas ---
     const interactiveLayerIds = useMemo(() => {
-        if (!shapes) return [];
+        if (!shapes || isReadOnly) return []; // No interactivo si es solo lectura
         // Generamos un array plano con todos los IDs de las 3 capas 
         // (point, line, polygon) por CADA shape, tal como se definen en SingleShapeLayer.
         return shapes.flatMap(shape => [
@@ -43,7 +47,7 @@ export default function MapComponent() {
             `shape-line-${shape.id}`,
             `shape-polygon-${shape.id}`
         ]);
-    }, [shapes]); // Se recalcula solo si el array de shapes cambia
+    }, [shapes, isReadOnly]);
 
     // --- MANEJADORES DE EVENTOS ---
     const handleMove = useCallback((evt: ViewStateChangeEvent) => {
@@ -52,6 +56,8 @@ export default function MapComponent() {
 
     // (Tu handleMapClick está perfecto, no necesita cambios)
     const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
+        if (isReadOnly) return; // No hacer nada si es solo lectura
+
         const { lng, lat } = evt.lngLat;
 
         // Primero, vemos si el clic fue sobre una 'feature' (capa interactiva)
@@ -76,7 +82,7 @@ export default function MapComponent() {
         if (mode === 'add-line' || mode === 'add-polygon') {
             addPendingPoint({ lng, lat });
         }
-    }, [mode, shapes, setPendingPoints, addPendingPoint, setSelectedShape]);
+    }, [mode, shapes, setPendingPoints, addPendingPoint, setSelectedShape, isReadOnly]);
 
     // --- RENDERIZADO ---
 
@@ -93,7 +99,7 @@ export default function MapComponent() {
                 {...viewState}
                 onMove={handleMove}
                 onClick={handleMapClick}
-                cursor={mode.startsWith('add-') ? 'pointer' : 'grab'}
+                cursor={isReadOnly ? 'grab' : (mode.startsWith('add-') ? 'pointer' : 'grab')}
                 style={{ width: '100%', height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
                 // --- 3. AÑADIR ESTA LÍNEA ---
@@ -102,14 +108,14 @@ export default function MapComponent() {
                 {/* 1. Capas de datos guardados (se encarga de su propio fetch) */}
                 <SavedShapesLayer />
 
-                {/* 2. Capas y marcadores de dibujo pendientes */}
-                <PendingDrawLayer />
+                {/* 2. Capas y marcadores de dibujo pendientes (Solo si no es readOnly, aunque el click handler ya protege) */}
+                {!isReadOnly && <PendingDrawLayer />}
 
                 {/* Otras capas o componentes del mapa pueden ir aquí */}
             </Map>
 
             {/* 3. UI (Botones, loading, etc.) por encima del Mapa */}
-            <MapUI />
+            <MapUI isReadOnly={isReadOnly} />
         </div>
     );
 }
