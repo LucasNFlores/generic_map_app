@@ -1,25 +1,17 @@
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/session/buttons/auth-button";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 
 export default function Header() {
-
     return (
-        <div className="flex-1 w-full flex flex-col gap-20 items-center">
-
-            <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-                <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-                    <div className="flex gap-5 items-center font-semibold">
-                        <Link href={"/"}>Mapa generico</Link>
-                        <Link href={"/protected/map"}>Mapa</Link>
-                        <ThemeSwitcher />
-                    </div>
-                    {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto min-w-[340px] max-w-[500px]">
+            <nav className="bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden">
+                <div className="flex items-center justify-between p-3 px-4 gap-6">
+                    <Link href="/" className="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity whitespace-nowrap">
+                        GenericMap
+                    </Link>
+                    <AuthButton />
                 </div>
             </nav>
-
         </div>
-    )
+    );
 }

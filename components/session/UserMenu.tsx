@@ -1,0 +1,112 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { ChevronDown, ChevronUp, LayoutDashboard, Map, ClipboardList, Users, LogOut, MapPinned } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+
+interface UserMenuProps {
+    user: {
+        first_name: string | null;
+        last_name: string | null;
+        role: string;
+        email?: string;
+    };
+}
+
+export default function UserMenu({ user }: UserMenuProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.refresh();
+        router.push('/auth/login');
+    };
+
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Usuario';
+    const roleLabel = user.role === 'superadmin' ? 'Administrador' : user.role === 'admin' ? 'Administrador' : user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+    return (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto min-w-[340px] max-w-[500px]">
+            {/* Pill Container */}
+            <div
+                className={cn(
+                    "bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden",
+                    isOpen ? "rounded-b-none border-b-0" : ""
+                )}
+            >
+                <div className="flex items-center justify-between p-2 px-3">
+                    <div className="flex items-center gap-4">
+                        {/* Avatar / Logo */}
+                        <div className="flex items-center gap-2">
+                            <div className="h-11 w-11 rounded-full bg-slate-800 flex items-center justify-center text-secondary shadow-inner">
+                                <MapPinned className="h-6 w-6" />
+                            </div>
+                            <p className="font-bold text-sm text-foreground leading-tight">GenericMap</p>
+                        </div>
+
+                        {/* User Info */}
+                        <div className="flex flex-col">
+                            <span className="font-bold text-sm text-foreground leading-tight">
+                                {fullName}
+                            </span>
+                            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                                {roleLabel === 'Superadmin' ? 'Administrador' : roleLabel}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Toggle Button */}
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="ml-2 h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted/50 transition-colors"
+                    >
+                        {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </button>
+                </div>
+            </div>
+
+            {/* Dropdown Menu */}
+            <div
+                className={cn(
+                    "bg-card/90 backdrop-blur-md border border-border border-t-0 rounded-b-2xl shadow-xl transition-all duration-300 overflow-hidden origin-top",
+                    isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+            >
+                <div className="flex flex-col py-2">
+                    <MenuLink href="/protected/map" icon={<Map className="h-4 w-4" />} label="Mapa Operativo" />
+
+                    {user.role === 'superadmin' && (
+                        <MenuLink href="/protected/admin" icon={<LayoutDashboard className="h-4 w-4" />} label="Panel de administracion" />
+                    )}
+
+                    <div className="h-[1px] bg-border my-2 mx-4" />
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        <span>Cerrar sesion</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MenuLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+    return (
+        <Link
+            href={href}
+            className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-foreground/80 hover:bg-muted/50 transition-colors"
+        >
+            <span className="text-muted-foreground">{icon}</span>
+            <span>{label}</span>
+        </Link>
+    );
+}
