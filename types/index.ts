@@ -2,7 +2,7 @@
 
 // --- 1. CONFIGURACIÓN DINÁMICA DE FORMULARIOS ---
 
-export type FormFieldType = 'auto_id' | 'text' | 'number' | 'select' | 'boolean' | 'date';
+export type FormFieldType = 'auto_id' | 'text' | 'number' | 'select' | 'multi_select' | 'boolean' | 'date';
 
 export interface FormFieldDefinition {
     id: string;

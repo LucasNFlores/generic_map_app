@@ -8,6 +8,7 @@ import { Container as ContainerShapeInfo } from "./Container";
 import Input from './Input';
 import Textarea from './TextArea';
 import Select from './Select';
+import MultiSelect from './MultiSelect';
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 
@@ -182,6 +183,13 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </Select>
+                        ) : field.type === 'multi_select' ? (
+                            <MultiSelect
+                                label={field.label}
+                                options={field.options || []}
+                                value={formData.metadata[field.id] || []}
+                                onChange={(value) => handleMetadataChange(field.id, value)}
+                            />
                         ) : (
                             <Input
                                 label={field.label}
