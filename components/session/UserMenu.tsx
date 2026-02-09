@@ -18,6 +18,7 @@ interface UserMenuProps {
 
 export default function UserMenu({ user }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isDocked, setIsDocked] = useState(true); // Nuevo estado para auto-ocultar
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -31,14 +32,37 @@ export default function UserMenu({ user }: UserMenuProps) {
     const roleLabel = user.role === 'superadmin' ? 'Administrador' : user.role === 'admin' ? 'Administrador' : user.role.charAt(0).toUpperCase() + user.role.slice(1);
 
     return (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto min-w-[340px] max-w-[500px]">
+        <div
+            className={cn(
+                "fixed left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto min-w-[340px] max-w-[500px] transition-all duration-500 ease-in-out group",
+                isDocked
+                    ? "top-0 -translate-y-[calc(100%-12px)] hover:-translate-y-[66%]"
+                    : "top-6 translate-y-0"
+            )}
+        >
             {/* Pill Container */}
             <div
                 className={cn(
-                    "bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden",
-                    isOpen ? "rounded-b-none border-b-0" : ""
+                    "bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden relative",
+                    isOpen ? "rounded-b-none border-b-0" : "",
+                    isDocked ? "cursor-pointer" : ""
                 )}
+                onClick={() => isDocked && setIsDocked(false)}
             >
+                {/* Zona Roja / Handle de Ocultar (Solo cuando NO está acoplado) */}
+                {!isDocked && (
+                    <div
+                        className="h-2 w-full flex items-center justify-center hover:bg-muted/50 transition-colors cursor-row-resize"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsDocked(true);
+                            setIsOpen(false);
+                        }}
+                    >
+                        <div className="w-12 h-1 rounded-full bg-border/50" />
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between p-2 px-3">
                     <div className="flex items-center gap-4">
                         {/* Avatar / Logo */}
@@ -60,21 +84,34 @@ export default function UserMenu({ user }: UserMenuProps) {
                         </div>
                     </div>
 
-                    {/* Toggle Button */}
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="ml-2 h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted/50 transition-colors"
-                    >
-                        {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                    </button>
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                        {/* Toggle Bottom part */}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsOpen(!isOpen);
+                            }}
+                            className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted/50 transition-colors"
+                        >
+                            {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        </button>
+                    </div>
                 </div>
+
+                {/* Docked Indicator Handle (Only visible when docked) */}
+                {isDocked && (
+                    <div className="absolute bottom-0 left-0 right-0 h-3 flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <ChevronDown className="h-3 w-3 text-primary animate-bounce" />
+                    </div>
+                )}
             </div>
 
             {/* Dropdown Menu */}
             <div
                 className={cn(
                     "bg-card/90 backdrop-blur-md border border-border border-t-0 rounded-b-2xl shadow-xl transition-all duration-300 overflow-hidden origin-top",
-                    isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                    (isOpen && !isDocked) ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
                 )}
             >
                 <div className="flex flex-col py-2">
