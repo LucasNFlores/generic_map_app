@@ -1,48 +1,150 @@
 import * as React from 'react';
 import { Plus, GripVertical as DragIcon, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    restrictToVerticalAxis,
+    restrictToWindowEdges,
+} from '@dnd-kit/modifiers';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface SelectOptionsEditorProps {
     options: string[];
     onChange: (options: string[]) => void;
 }
 
-export const SelectOptionsEditor = ({ options, onChange }: SelectOptionsEditorProps) => {
-    const [draggingIndex, setDraggingIndex] = React.useState<number | null>(null);
+interface SortableItemProps {
+    id: string;
+    index: number;
+    value: string;
+    onUpdate: (value: string) => void;
+    onRemove: () => void;
+}
 
-    const addOption = () => onChange([...options, '']);
+const SortableItem = ({ id, index, value, onUpdate, onRemove }: SortableItemProps) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn(
+                "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group",
+                isDragging
+                    ? "bg-primary/10 border-primary/40 opacity-70 shadow-inner z-50"
+                    : "bg-[#161e2e] border-[#222f49] hover:border-primary/30"
+            )}
+        >
+            <div
+                {...attributes}
+                {...listeners}
+                className="cursor-grab active:cursor-grabbing text-[#5a6b8c] hover:text-primary transition-colors"
+            >
+                <DragIcon size={14} />
+            </div>
+
+            <input
+                value={value}
+                onChange={(e) => onUpdate(e.target.value)}
+                placeholder={`Option ${index + 1}`}
+                className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[#5a6b8c] font-medium"
+            />
+
+            <button
+                type="button"
+                onClick={onRemove}
+                className="text-[#5a6b8c] hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition-all"
+            >
+                <Trash2 size={14} />
+            </button>
+        </div>
+    );
+};
+
+export const SelectOptionsEditor = ({ options, onChange }: SelectOptionsEditorProps) => {
+    // We use internal state with stable IDs to handle dnd-kit reordering correctly,
+    // especially when there are duplicate strings (like two empty options).
+    const [items, setItems] = React.useState<{ id: string; value: string }[]>(
+        options.map((opt, i) => ({ id: `id-${i}-${Math.random()}`, value: opt }))
+    );
+
+    // Keep internal items in sync with external options
+    React.useEffect(() => {
+        // Only update if the values actually changed to avoid losing cursor focus or drag state
+        const currentValues = items.map(item => item.value);
+        if (JSON.stringify(currentValues) !== JSON.stringify(options)) {
+            setItems(options.map((opt, i) => ({ id: `id-${i}-${Date.now()}`, value: opt })));
+        }
+    }, [options]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 3, // Reduced from 8 for better sensitivity
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const addOption = () => {
+        const newItems = [...items, { id: `id-${Date.now()}-${Math.random()}`, value: '' }];
+        setItems(newItems);
+        onChange(newItems.map(i => i.value));
+    };
 
     const removeOption = (index: number) => {
-        const newOptions = options.filter((_, i) => i !== index);
-        onChange(newOptions);
+        const newItems = items.filter((_, i) => i !== index);
+        setItems(newItems);
+        onChange(newItems.map(i => i.value));
     };
 
     const updateOption = (index: number, value: string) => {
-        const newOptions = [...options];
-        newOptions[index] = value;
-        onChange(newOptions);
+        const newItems = [...items];
+        newItems[index] = { ...newItems[index], value };
+        setItems(newItems);
+        onChange(newItems.map(i => i.value));
     };
 
-    const handleDragStart = (e: React.DragEvent, index: number) => {
-        setDraggingIndex(index);
-        e.dataTransfer.effectAllowed = 'move';
-    };
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
 
-    const handleDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        if (draggingIndex === null || draggingIndex === index) return;
+        if (over && active.id !== over.id) {
+            const oldIndex = items.findIndex(item => item.id === active.id);
+            const newIndex = items.findIndex(item => item.id === over.id);
 
-        const newOptions = [...options];
-        const itemToMove = newOptions[draggingIndex];
-        newOptions.splice(draggingIndex, 1);
-        newOptions.splice(index, 0, itemToMove);
-
-        setDraggingIndex(index);
-        onChange(newOptions);
-    };
-
-    const handleDragEnd = () => {
-        setDraggingIndex(null);
+            const reorderedItems = arrayMove(items, oldIndex, newIndex);
+            setItems(reorderedItems);
+            onChange(reorderedItems.map(i => i.value));
+        }
     };
 
     return (
@@ -60,42 +162,30 @@ export const SelectOptionsEditor = ({ options, onChange }: SelectOptionsEditorPr
             </div>
 
             <div className="space-y-2">
-                {options.map((opt, idx) => (
-                    <div
-                        key={idx}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, idx)}
-                        onDragOver={(e) => handleDragOver(e, idx)}
-                        onDragEnd={handleDragEnd}
-                        className={cn(
-                            "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group",
-                            draggingIndex === idx
-                                ? "bg-primary/10 border-primary/40 opacity-50 scale-[0.98] shadow-inner"
-                                : "bg-[#161e2e] border-[#222f49] hover:border-primary/30"
-                        )}
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                    modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                >
+                    <SortableContext
+                        items={items.map(i => i.id)}
+                        strategy={verticalListSortingStrategy}
                     >
-                        <div className="cursor-grab active:cursor-grabbing text-[#5a6b8c] hover:text-primary transition-colors">
-                            <DragIcon size={14} />
-                        </div>
+                        {items.map((item, idx) => (
+                            <SortableItem
+                                key={item.id}
+                                id={item.id}
+                                index={idx}
+                                value={item.value}
+                                onUpdate={(val) => updateOption(idx, val)}
+                                onRemove={() => removeOption(idx)}
+                            />
+                        ))}
+                    </SortableContext>
+                </DndContext>
 
-                        <input
-                            value={opt}
-                            onChange={(e) => updateOption(idx, e.target.value)}
-                            placeholder={`Option ${idx + 1}`}
-                            className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[#5a6b8c] font-medium"
-                        />
-
-                        <button
-                            type="button"
-                            onClick={() => removeOption(idx)}
-                            className="text-[#5a6b8c] hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition-all"
-                        >
-                            <Trash2 size={14} />
-                        </button>
-                    </div>
-                ))}
-
-                {options.length === 0 && (
+                {items.length === 0 && (
                     <div className="text-center py-10 rounded-2xl border-2 border-dashed border-[#222f49] bg-[#161e2e]/30">
                         <p className="text-xs text-[#5a6b8c] font-medium">No options added yet.</p>
                         <button
