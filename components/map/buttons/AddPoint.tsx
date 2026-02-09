@@ -5,6 +5,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import { toast } from 'react-hot-toast';
+import { Check, Plus } from 'lucide-react';
 
 export default function AddPoint() {
     const [isLoading, setIsLoading] = useState(false);
@@ -100,9 +101,11 @@ export default function AddPoint() {
             disabled={isDisabled} // Estado de deshabilitado dinámico
         >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary group-hover:bg-primary/80 text-primary-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                    <path fillRule="evenodd" d="M12 5.25a.75.75 0 0 1 .75.75v5.25h5.25a.75.75 0 0 1 0 1.5H12.75v5.25a.75.75 0 0 1-1.5 0V12.75H5.25a.75.75 0 0 1 0-1.5h5.25V6a.75.75 0 0 1 .75-.75z" clipRule="evenodd" />
-                </svg>
+                {mode === 'add-point' && pendingPoints.length > 0 ? (
+                    <Check className="h-5 w-5" />
+                ) : (
+                    <Plus className="h-5 w-5" />
+                )}
             </span>
             <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 {buttonText} {/* Texto dinámico */}

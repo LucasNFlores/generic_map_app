@@ -5,6 +5,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import { toast } from 'react-hot-toast';
+import { Check, Waypoints } from 'lucide-react';
 
 export default function AddLine() {
     const [isLoading, setIsLoading] = useState(false);
@@ -92,10 +93,11 @@ export default function AddLine() {
             disabled={isDisabled}
         >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary group-hover:bg-primary/80 text-primary-foreground">
-                {/* Icono de Línea (Polyline) */}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 15.75l4.5-4.5 4.5 4.5 4.5-4.5" />
-                </svg>
+                {mode === 'add-line' && pendingPoints.length >= 2 ? (
+                    <Check className="h-5 w-5" />
+                ) : (
+                    <Waypoints className="h-5 w-5" />
+                )}
             </span>
             <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 {buttonText} {/* Texto dinámico */}

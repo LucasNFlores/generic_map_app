@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useMapStore } from '@/providers/map-store-provider';
 import type { MapStore } from '@/stores/map-store';
 import { toast } from 'react-hot-toast';
+import { Check, Pentagon } from 'lucide-react';
 
 export default function AddPolygon() {
     const [isLoading, setIsLoading] = useState(false);
@@ -94,10 +95,11 @@ export default function AddPolygon() {
             disabled={isDisabled}
         >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary group-hover:bg-primary/80 text-primary-foreground">
-                {/* Icono de Polígono (Cubo Transparente de Heroicons) */}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-14.25v14.25" />
-                </svg>
+                {mode === 'add-polygon' && pendingPoints.length >= 3 ? (
+                    <Check className="h-5 w-5" />
+                ) : (
+                    <Pentagon className="h-5 w-5" />
+                )}
             </span>
             <span className=" overflow-hidden transition-all duration-100 opacity-100 max-w-full">
                 {buttonText} {/* Texto dinámico */}
