@@ -40,6 +40,21 @@ export default function UserMenu({ user }: UserMenuProps) {
                     : "top-6 translate-y-0"
             )}
         >
+            {/* Zona Roja (Espacio invisible sobre el menú para ocultar) */}
+            {!isDocked && (
+                <div
+                    className="absolute -top-6 left-0 right-0 h-6 cursor-pointer z-10 flex items-center justify-center group/redzone"
+                    title="Hacer click aquí para ocultar"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsDocked(true);
+                        setIsOpen(false);
+                    }}
+                >
+                    <ChevronUp className="h-5 w-5 text-primary opacity-0 group-hover/redzone:opacity-100 transition-opacity translate-y-2 animate-bounce" />
+                </div>
+            )}
+
             {/* Pill Container */}
             <div
                 className={cn(
@@ -49,20 +64,6 @@ export default function UserMenu({ user }: UserMenuProps) {
                 )}
                 onClick={() => isDocked && setIsDocked(false)}
             >
-                {/* Zona Roja / Handle de Ocultar (Solo cuando NO está acoplado) */}
-                {!isDocked && (
-                    <div
-                        className="h-2 w-full flex items-center justify-center hover:bg-muted/50 transition-colors cursor-row-resize"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsDocked(true);
-                            setIsOpen(false);
-                        }}
-                    >
-                        <div className="w-12 h-1 rounded-full bg-border/50" />
-                    </div>
-                )}
-
                 <div className="flex items-center justify-between p-2 px-3">
                     <div className="flex items-center gap-4">
                         {/* Avatar / Logo */}
