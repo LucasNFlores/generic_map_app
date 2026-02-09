@@ -21,7 +21,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     // 2. Obtener el ID de la URL
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
         return NextResponse.json({ error: 'Shape ID is required' }, { status: 400 });
     }
@@ -42,7 +42,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
                 name: body.name,
                 description: body.description,
                 location_address: body.location_address,
-                waste_type: body.waste_type,
+                metadata: body.metadata, // Soporte para campos dinámicos de categorías
                 // (No actualizamos 'type', 'id' o 'creator_id', etc.)
             })
             .eq('id', id)  // Donde el ID coincida
@@ -66,7 +66,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 // Implementamos la función DELETE
 export async function DELETE(request: Request, { params }: RouteParams) {
     // 1. Obtener el ID de la URL
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
         return NextResponse.json({ error: 'Shape ID is required' }, { status: 400 });

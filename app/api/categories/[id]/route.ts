@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -16,7 +17,7 @@ export async function GET(
         const { data: category, error } = await supabase
             .from('categories')
             .select('*')
-            .eq('id', params.id)
+            .eq('id', id)
             .single();
 
         if (error) {
@@ -37,8 +38,9 @@ export async function GET(
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -65,7 +67,7 @@ export async function PATCH(
                 fields_definition,
                 updated_at: new Date().toISOString()
             })
-            .eq('id', params.id)
+            .eq('id', id)
             .select()
             .single();
 
@@ -83,8 +85,9 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -97,7 +100,7 @@ export async function DELETE(
         const { count } = await supabase
             .from('shapes')
             .select('*', { count: 'exact', head: true })
-            .eq('category_id', params.id);
+            .eq('category_id', id);
 
         if (count && count > 0) {
             return NextResponse.json(
@@ -109,7 +112,7 @@ export async function DELETE(
         const { error } = await supabase
             .from('categories')
             .delete()
-            .eq('id', params.id);
+            .eq('id', id);
 
         if (error) {
             console.error('Error deleting category:', error);
