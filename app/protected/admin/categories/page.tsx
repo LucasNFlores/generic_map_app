@@ -46,18 +46,43 @@ export default function CategoriesAdminPage() {
         }
     };
 
+    const handleNewCategory = () => {
+        const tempId = `temp-${Date.now()}`;
+        const newCategory: Category = {
+            id: '', // Empty ID signifies a new category
+            name: 'Nueva Categoría',
+            description: '',
+            color: '#3b82f6',
+            icon: 'MapPin',
+            fields_definition: [],
+            created_at: new Date().toISOString()
+        };
+        setSelectedCategory(newCategory);
+        setSelectedFieldId('');
+    };
+
     const handleSave = async () => {
         if (!selectedCategory) return;
         setIsSaving(true);
         try {
-            const res = await fetch(`/api/categories/${selectedCategory.id}`, {
-                method: 'PATCH',
+            const isNew = !selectedCategory.id;
+            const url = isNew ? '/api/categories' : `/api/categories/${selectedCategory.id}`;
+            const method = isNew ? 'POST' : 'PATCH';
+
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(selectedCategory)
             });
+
             if (res.ok) {
-                // Update local list to reflect changes
-                setCategories(prev => prev.map(c => c.id === selectedCategory.id ? selectedCategory : c));
+                const savedCategory = await res.json();
+                if (isNew) {
+                    setCategories(prev => [...prev, savedCategory]);
+                } else {
+                    setCategories(prev => prev.map(c => c.id === savedCategory.id ? savedCategory : c));
+                }
+                setSelectedCategory(savedCategory);
                 // Opcional: Toast de éxito
             }
         } catch (error) {
@@ -90,7 +115,7 @@ export default function CategoriesAdminPage() {
                     selectedCategory={selectedCategory}
                     onSelectCategory={setSelectedCategory}
                     loading={loading}
-                // onNewCategory logic could be added here
+                    onNewCategory={handleNewCategory}
                 />
 
                 {/* Center Canvas: Builder Area */}
