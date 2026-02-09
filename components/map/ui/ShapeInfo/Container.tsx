@@ -9,7 +9,7 @@ export function Container({
     return (
         <form
             className={cn(
-                "absolute bottom-4 left-1/2 -translate-x-1/2 min-h-28 z-10 flex flex-col gap-4 items-stretch bg-background/90 p-5 rounded-xl shadow-2xl shadow-black transition-all duration-300",
+                "absolute bottom-4 left-1/2 -translate-x-1/2 max-h-[80vh] z-10 flex flex-col gap-1 items-stretch bg-card/80 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-border transition-all duration-300 overflow-hidden",
                 "w-[90%] md:w-1/3 max-w-[600px]",
                 className,
             )}

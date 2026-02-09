@@ -146,7 +146,7 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
         <ContainerShapeInfo onSubmit={handleSubmit}>
             <div className="flex justify-between items-center w-full mb-2">
                 <h3 className="text-lg font-semibold text-primary">
-                    {isNew ? 'Nueva ' : 'Editar '}
+                    {isNew ? (shape.type === 'line' ? 'Nueva ' : 'Nuevo ') : 'Editar '}
                     {shape.type === 'point' ? 'Punto' : shape.type === 'line' ? 'Línea' : 'Polígono'}
                 </h3>
                 <button type="button" onClick={handleClose} className="text-muted-foreground hover:text-primary">
@@ -156,53 +156,55 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
                 </button>
             </div>
 
-            <div className="flex flex-col gap-5 mt-2 w-full">
-                <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} required />
+            <div className="flex-1 overflow-y-auto pr-1.5 py-1 -mr-1.5 custom-scrollbar">
+                <div className="flex flex-col gap-2 w-full">
+                    <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} required />
 
-                <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange} required>
-                    <option value="">Seleccionar categoría...</option>
-                    {categories.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                    <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange} required>
+                        <option value="">Seleccionar categoría...</option>
+                        {categories.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </Select>
+
+                    <Input label="Ubicación" name="location_address" value={formData.location_address} onChange={handleChange} />
+
+                    {/* CAMPOS DINÁMICOS BASADOS EN LA CATEGORÍA (excluyendo auto_id) */}
+                    {selectedCategory?.fields_definition?.filter(field => field.type !== 'auto_id').map(field => (
+                        <div key={field.id} className="w-full">
+                            {field.type === 'select' ? (
+                                <Select
+                                    label={field.label}
+                                    name={field.id}
+                                    value={formData.metadata[field.id] || ''}
+                                    onChange={(e) => handleMetadataChange(field.id, e.target.value)}
+                                >
+                                    <option value="">Seleccionar...</option>
+                                    {field.options?.map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </Select>
+                            ) : field.type === 'multi_select' ? (
+                                <MultiSelect
+                                    label={field.label}
+                                    options={field.options || []}
+                                    value={formData.metadata[field.id] || []}
+                                    onChange={(value) => handleMetadataChange(field.id, value)}
+                                />
+                            ) : (
+                                <Input
+                                    label={field.label}
+                                    name={field.id}
+                                    type={field.type === 'number' ? 'number' : 'text'}
+                                    value={formData.metadata[field.id] || ''}
+                                    onChange={(e) => handleMetadataChange(field.id, e.target.value)}
+                                />
+                            )}
+                        </div>
                     ))}
-                </Select>
 
-                <Input label="Ubicación" name="location_address" value={formData.location_address} onChange={handleChange} />
-
-                {/* CAMPOS DINÁMICOS BASADOS EN LA CATEGORÍA (excluyendo auto_id) */}
-                {selectedCategory?.fields_definition?.filter(field => field.type !== 'auto_id').map(field => (
-                    <div key={field.id} className="w-full">
-                        {field.type === 'select' ? (
-                            <Select
-                                label={field.label}
-                                name={field.id}
-                                value={formData.metadata[field.id] || ''}
-                                onChange={(e) => handleMetadataChange(field.id, e.target.value)}
-                            >
-                                <option value="">Seleccionar...</option>
-                                {field.options?.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                            </Select>
-                        ) : field.type === 'multi_select' ? (
-                            <MultiSelect
-                                label={field.label}
-                                options={field.options || []}
-                                value={formData.metadata[field.id] || []}
-                                onChange={(value) => handleMetadataChange(field.id, value)}
-                            />
-                        ) : (
-                            <Input
-                                label={field.label}
-                                name={field.id}
-                                type={field.type === 'number' ? 'number' : 'text'}
-                                value={formData.metadata[field.id] || ''}
-                                onChange={(e) => handleMetadataChange(field.id, e.target.value)}
-                            />
-                        )}
-                    </div>
-                ))}
-
-                <Textarea label="Descripción" name="description" value={formData.description} onChange={handleChange} />
+                    <Textarea label="Descripción" name="description" value={formData.description} onChange={handleChange} />
+                </div>
             </div>
 
             <div className="flex gap-2 w-full mt-2">

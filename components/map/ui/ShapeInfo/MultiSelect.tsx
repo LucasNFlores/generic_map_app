@@ -32,7 +32,7 @@ export default function MultiSelect({ label, options, value = [], onChange }: Mu
                         />
                         <label
                             htmlFor={`${label}-${opt}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-opacity-70 text-primary cursor-pointer"
+                            className="text-sm font-medium leading-none capitalize peer-disabled:cursor-not-allowed peer-opacity-70 text-primary cursor-pointer"
                         >
                             {opt}
                         </label>
