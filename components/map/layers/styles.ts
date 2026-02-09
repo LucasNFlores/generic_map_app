@@ -10,13 +10,18 @@ type LayerStyleProps<T> = Omit<T, 'source'>;
 // --- 1. Helper para leer la variable CSS desde el DOM ---
 const getCssVariable = (varName: string): string => {
     if (typeof window === 'undefined') {
-        return 'hsl(0, 84.2%, 60.2%)';
+        return '#ef4444'; // Rojo destructivo default
     }
-    const hslValue = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-    if (!hslValue) {
-        return 'hsl(0, 84.2%, 60.2%)';
+    const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    if (!value) {
+        return '#ef4444';
     }
-    return `hsl(${hslValue.replace(/\s/g, ', ')})`;
+    // Si el valor ya es un color (ej: HEX de la base de datos), lo devolvemos tal cual
+    if (value.startsWith('#') || value.startsWith('oklch') || value.startsWith('rgb') || value.startsWith('hsl')) {
+        return value;
+    }
+    // Si es solo un conjunto de valores (como nuestras variables OKLCH), lo envolvemos
+    return `oklch(${value})`;
 };
 
 // --- 2. CONVERTIMOS LOS ESTILOS EN FUNCIONES ---
@@ -59,7 +64,7 @@ export const pendingLineStyle: LayerStyleProps<LineLayerSpecification> = {
     id: 'pending-line-preview',
     type: 'line',
     paint: {
-        'line-color': 'hsl(0, 84.2%, 60.2%)',
+        'line-color': '#ef4444',
         'line-width': 2,
         'line-dasharray': [2, 1]
     }
@@ -68,7 +73,7 @@ export const pendingLineStyle: LayerStyleProps<LineLayerSpecification> = {
 // --- 3. EL HOOK (ACTUALIZADO) ---
 export const useMapStyles = (shapeId: string, categoryColor?: string) => {
     const { theme } = useTheme();
-    const [color, setColor] = useState(categoryColor || 'hsl(0, 84.2%, 60.2%)');
+    const [color, setColor] = useState(categoryColor || '#ef4444');
     const selectedShapeId = useMapStore((state: MapStore) => state.selectedShape?.id);
 
     useEffect(() => {

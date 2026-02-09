@@ -32,7 +32,6 @@ type Props = {
 export const SingleShapeLayer = React.memo(function SingleShapeLayer({ shape }: Props) {
 
     // 1. Obtenemos el color de la categoría (con join desde el backend)
-    // @ts-expect-error La categoría viene del join en el API
     const categoryColor = shape.category?.color;
 
     // 2. Obtenemos los estilos únicos para ESTA shape

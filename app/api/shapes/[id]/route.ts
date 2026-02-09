@@ -5,9 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 
 // Definimos los parámetros que esperamos en la URL
 interface RouteParams {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
