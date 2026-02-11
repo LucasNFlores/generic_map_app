@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     label: React.ReactNode;
     name: string;
 }

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label: React.ReactNode;
     name: string;
 }
