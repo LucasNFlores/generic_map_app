@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import type { ViewState } from 'react-map-gl/maplibre';
-import type { ShapeWithPoints, Category } from '@/types';
+import type { ShapeWithPoints, Category, MapConfiguration } from '@/types';
 
 // --- Definiciones de Estado ---
 // 1. Añadimos el nuevo modo 'edit-shape'
@@ -20,6 +20,8 @@ export type MapState = {
 	isLoadingCategories: boolean;
 	// 2. Añadimos el estado para la shape seleccionada
 	selectedShape: ShapeWithPoints | null;
+	mapConfig: MapConfiguration | null;
+	isLoadingMapConfig: boolean;
 };
 
 // --- 2. MapActions (Actualizado) ---
@@ -36,6 +38,8 @@ export type MapActions = {
 	setSelectedCategory: (category: Category | null) => void;
 	// 3. Añadimos la acción para seleccionar una shape
 	setSelectedShape: (shape: ShapeWithPoints | null) => void;
+	fetchMapConfig: () => Promise<void>;
+	setMapConfig: (config: MapConfiguration) => void;
 };
 
 export type MapStore = MapState & MapActions;
@@ -58,6 +62,8 @@ export const defaultInitialState: MapState = {
 	isLoadingShapes: false,
 	isLoadingCategories: false,
 	selectedShape: null, // 4. Estado inicial nulo
+	mapConfig: null,
+	isLoadingMapConfig: false,
 };
 
 export const createMapStore = (
@@ -115,5 +121,22 @@ export const createMapStore = (
 
 		// 5. Implementación de la nueva acción
 		setSelectedShape: (shape) => set({ selectedShape: shape, mode: shape ? 'edit-shape' : 'browse' }),
+
+		fetchMapConfig: async () => {
+			try {
+				set({ isLoadingMapConfig: true });
+				const response = await fetch('/api/admin/map-settings');
+				if (response.ok) {
+					const data: MapConfiguration = await response.json();
+					set({ mapConfig: data });
+				}
+			} catch (error) {
+				console.error('Error fetching map config:', error);
+			} finally {
+				set({ isLoadingMapConfig: false });
+			}
+		},
+
+		setMapConfig: (config) => set({ mapConfig: config }),
 	}));
 };

@@ -1,29 +1,26 @@
 // MapComponent.tsx
 'use client';
 
-// 1. Importaciones reducidas
 import * as React from 'react';
 import Map, {
     type MapLayerMouseEvent,
+    type ViewStateChangeEvent
 } from 'react-map-gl/maplibre';
 import { useMapStore } from '@/providers/map-store-provider';
-import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
-// --- 1. IMPORTAR useMemo ---
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import type { MapStore } from '@/stores/map-store';
+import type { MapConfiguration } from '@/types';
 
-// 2. Importamos los nuevos componentes especializados
 import { SavedShapesLayer } from './layers/SavedShapesLayer';
 import { PendingDrawLayer } from './layers/PendingDrawLayer';
 import { MapUI } from './ui/MapUI';
 
-// --- COMPONENTE PRINCIPAL ---
-
 interface MapComponentProps {
     isReadOnly?: boolean;
+    customConfig?: MapConfiguration | null;
 }
 
-export default function MapComponent({ isReadOnly = false }: MapComponentProps) {
+export default function MapComponent({ isReadOnly = false, customConfig = null }: MapComponentProps) {
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
     // --- HOOKS DE ZUSTAND (Solo los necesarios para el mapa base) ---
@@ -37,11 +34,22 @@ export default function MapComponent({ isReadOnly = false }: MapComponentProps) 
     const shapes = useMapStore((state: MapStore) => state.shapes);
     const setSelectedShape = useMapStore((state: MapStore) => state.setSelectedShape);
 
+    // --- Configuración del Mapa ---
+    const mapConfig = useMapStore((state: MapStore) => state.mapConfig);
+    const fetchMapConfig = useMapStore((state: MapStore) => state.fetchMapConfig);
+
+    useEffect(() => {
+        // Fetch global config if not yet loaded and no custom config provided
+        if (!mapConfig && !customConfig) {
+            fetchMapConfig();
+        }
+    }, [mapConfig, customConfig, fetchMapConfig]);
+
+    const activeConfig = customConfig || mapConfig;
+
     // --- 2. (NUEVO) Generar la lista de IDs de capas interactivas ---
     const interactiveLayerIds = useMemo(() => {
         if (!shapes || isReadOnly) return []; // No interactivo si es solo lectura
-        // Generamos un array plano con todos los IDs de las 3 capas 
-        // (point, line, polygon) por CADA shape, tal como se definen en SingleShapeLayer.
         return shapes.flatMap(shape => [
             `shape-point-${shape.id}`,
             `shape-line-${shape.id}`,
@@ -54,14 +62,11 @@ export default function MapComponent({ isReadOnly = false }: MapComponentProps) 
         setViewState(evt.viewState);
     }, [setViewState]);
 
-    // (Tu handleMapClick está perfecto, no necesita cambios)
     const handleMapClick = useCallback((evt: MapLayerMouseEvent) => {
-        if (isReadOnly) return; // No hacer nada si es solo lectura
+        if (isReadOnly) return;
 
         const { lng, lat } = evt.lngLat;
 
-        // Primero, vemos si el clic fue sobre una 'feature' (capa interactiva)
-        // ESTO AHORA DEBERÍA FUNCIONAR
         if (evt.features && evt.features.length > 0) {
             const clickedFeature = evt.features[0];
             const shapeId = clickedFeature.properties?.id;
@@ -69,13 +74,12 @@ export default function MapComponent({ isReadOnly = false }: MapComponentProps) 
             if (shapeId) {
                 const shapeToSelect = shapes.find(s => s.id === shapeId);
                 if (shapeToSelect) {
-                    setSelectedShape(shapeToSelect); // ¡La seleccionamos en el store!
-                    return; // Detenemos la ejecución
+                    setSelectedShape(shapeToSelect);
+                    return;
                 }
             }
         }
 
-        // Si no se hizo clic en ninguna feature, continuamos con la lógica de dibujo
         if (mode === 'add-point') {
             setPendingPoints([{ lng, lat }]);
         }
@@ -91,7 +95,9 @@ export default function MapComponent({ isReadOnly = false }: MapComponentProps) 
         return <div>Error: Falta la API Key del mapa.</div>;
     }
 
-    const mapStyle = `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`;
+    // Determine Map Style
+    const baseStyleUrl = activeConfig?.mapbox_style || `https://api.maptiler.com/maps/streets-v2/style.json`;
+    const mapStyle = baseStyleUrl.includes('key=') ? baseStyleUrl : `${baseStyleUrl}?key=${mapTilerKey}`;
 
     return (
         <div id="mapContainer" className="relative w-full h-full flex-1 overflow-hidden">
@@ -102,20 +108,12 @@ export default function MapComponent({ isReadOnly = false }: MapComponentProps) 
                 cursor={isReadOnly ? 'grab' : (mode.startsWith('add-') ? 'pointer' : 'grab')}
                 style={{ width: '100%', height: '100%', minHeight: '400px' }}
                 mapStyle={mapStyle}
-                // --- 3. AÑADIR ESTA LÍNEA ---
                 interactiveLayerIds={interactiveLayerIds}
             >
-                {/* 1. Capas de datos guardados (se encarga de su propio fetch) */}
                 <SavedShapesLayer />
-
-                {/* 2. Capas y marcadores de dibujo pendientes (Solo si no es readOnly, aunque el click handler ya protege) */}
                 {!isReadOnly && <PendingDrawLayer />}
-
-                {/* Otras capas o componentes del mapa pueden ir aquí */}
             </Map>
-
-            {/* 3. UI (Botones, loading, etc.) por encima del Mapa */}
-            <MapUI isReadOnly={isReadOnly} />
+            <MapUI isReadOnly={isReadOnly} config={activeConfig} />
         </div>
     );
 }

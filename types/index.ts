@@ -111,3 +111,25 @@ export type GeoJsonFeatureCollection = {
     type: 'FeatureCollection';
     features: GeoJsonFeature[];
 };
+
+// --- 5. CONFIGURACIÓN DEL MAPA ---
+
+export interface MapConfiguration {
+    id: string;
+    is_active: boolean;
+    mapbox_style: string;
+    default_center: {
+        lng: number;
+        lat: number;
+        zoom: number;
+    };
+    role_overrides: Record<string, {
+        lng: number;
+        lat: number;
+        zoom: number;
+    }>;
+    enabled_controls: string[];
+    allowed_shapes: ShapeType[];
+    min_zoom: number;
+    max_zoom: number;
+}
