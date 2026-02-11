@@ -15,6 +15,7 @@ import { MapPin, Save, Globe, Eye, Layers, Settings2 } from 'lucide-react';
 interface Props {
     initialConfig: MapConfiguration | null;
     onChange: (config: MapConfiguration) => void;
+    onPreviewClick?: () => void;
 }
 
 const MAPTILER_STYLES = [
@@ -25,7 +26,7 @@ const MAPTILER_STYLES = [
     { name: 'Light', url: 'https://api.maptiler.com/maps/dataviz-light/style.json', img: '/images/style-light.png' },
 ];
 
-export function MapSettingsForm({ initialConfig, onChange }: Props) {
+export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Props) {
     const defaultState: MapConfiguration = {
         id: '',
         is_active: true,
@@ -105,14 +106,14 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
     };
 
     return (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8">
             {/* Style Selector */}
             <section className="space-y-4">
                 <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
                     <Layers size={14} />
                     Estilo del Mapa
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {MAPTILER_STYLES.map((style) => (
                         <div
                             key={style.name}
@@ -153,11 +154,11 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                     Posición Inicial
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                         { id: 'custom', label: 'Personalizado', icon: <Settings2 size={16} /> },
-                        { id: 'current_location', label: 'Ubicación', icon: <MapPin size={16} /> },
-                        { id: 'fit_shapes', label: 'Ajustar Formas', icon: <Globe size={16} /> },
+                        { id: 'current_location', label: 'Ubicación actual (gps)', icon: <MapPin size={16} /> },
+                        { id: 'fit_shapes', label: 'Vista General', icon: <Globe size={16} /> },
                     ].map((mode) => (
                         <SelectableCard
                             key={mode.id}
@@ -246,7 +247,7 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
 
                     <div className="space-y-3">
                         <Label className="text-white text-sm">Formas Permitidas</Label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             {['point', 'line', 'polygon'].map(shape => (
                                 <div
                                     key={shape}
@@ -278,7 +279,16 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
             </section>
 
             {/* Floating Save Button */}
-            <div className="sticky bottom-0 pt-4 bg-gradient-to-t from-[#0f172a] to-transparent pb-4">
+            <div className="sticky bottom-0 pt-4 bg-gradient-to-t from-[#0f172a] to-transparent pb-4 space-y-3">
+                <Button
+                    onClick={onPreviewClick}
+                    variant="outline"
+                    className="w-full lg:hidden bg-[#1e293b] text-blue-400 border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-300 font-bold h-10"
+                >
+                    <Globe size={16} className="mr-2" />
+                    Ver Mapa / Vista Previa
+                </Button>
+
                 <Button
                     onClick={handleSave}
                     disabled={isSaving}
