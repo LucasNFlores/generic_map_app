@@ -104,6 +104,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
+                        <ThemeSwitcher />
                         <div className="h-6 w-[1px] bg-border/50 mx-1" />
                         {/* Toggle Bottom part */}
                         <button
