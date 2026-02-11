@@ -45,9 +45,4 @@ CREATE POLICY "Admins can manage invitations" ON public.invitations
         public.is_admin()
     );
 
--- 4. Ensure specific user is superadmin (as requested)
-UPDATE public.profiles 
-SET role = 'superadmin' 
-WHERE id IN (
-  SELECT id FROM auth.users WHERE email = 'lucasnicolasflores@gmail.com'
-);
+

@@ -1,6 +1,5 @@
 // app/protected/map/layout.tsx
 
-import 'maplibre-gl/dist/maplibre-gl.css';
 import React from 'react';
 import { MapStoreProvider } from '@/providers/map-store-provider';
 

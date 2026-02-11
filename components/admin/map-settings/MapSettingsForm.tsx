@@ -136,12 +136,12 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                     ))}
                 </div>
                 {/* Custom URL Input */}
-                <div className="mt-2">
-                    <Label className="text-xs text-gray-400 mb-1 block">URL Personalizada (MapTiler/Mapbox)</Label>
+                <div className="mt-2 space-y-1.5">
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block ml-1">URL Personalizada (MapTiler/Mapbox)</Label>
                     <Input
                         value={config.mapbox_style}
                         onChange={(e) => updateConfig({ mapbox_style: e.target.value })}
-                        className="bg-[#0f172a] border-[#334155] text-xs h-8"
+                        className="bg-[#1e293b] border-[#334155] text-white text-xs h-10 px-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg selection:bg-blue-500/30"
                         placeholder="https://api.maptiler.com/maps/..."
                     />
                 </div>
@@ -208,16 +208,25 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                         <Label className="text-white text-sm">Controles Visibles</Label>
                         <div className="grid grid-cols-2 gap-2">
                             {['zoom', 'scale', 'geolocate', 'fullscreen'].map(control => (
-                                <div key={control} className="flex items-center space-x-2 bg-[#1e293b] p-2 rounded-lg">
+                                <div
+                                    key={control}
+                                    onClick={() => toggleControl(control)}
+                                    className={`
+                                        flex items-center space-x-3 p-3 rounded-xl border-2 transition-all cursor-pointer group
+                                        ${(config.enabled_controls || []).includes(control)
+                                            ? 'bg-blue-500/10 border-blue-500/30'
+                                            : 'bg-[#1e293b] border-transparent hover:border-[#334155]'}
+                                    `}
+                                >
                                     <Checkbox
                                         id={control}
                                         checked={(config.enabled_controls || []).includes(control)}
-                                        onCheckedChange={() => toggleControl(control)}
-                                        className="border-gray-500 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                                        onCheckedChange={() => { }} // Controlado por el div
+                                        className="border-gray-500 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 pointer-events-none"
                                     />
                                     <label
                                         htmlFor={control}
-                                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-300 capitalize"
+                                        className="text-xs font-semibold leading-none cursor-pointer text-gray-300 capitalize group-hover:text-white transition-colors pointer-events-none"
                                     >
                                         {control}
                                     </label>
@@ -230,16 +239,25 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                         <Label className="text-white text-sm">Formas Permitidas</Label>
                         <div className="grid grid-cols-3 gap-2">
                             {['point', 'line', 'polygon'].map(shape => (
-                                <div key={shape} className="flex items-center space-x-2 bg-[#1e293b] p-2 rounded-lg">
+                                <div
+                                    key={shape}
+                                    onClick={() => toggleShape(shape)}
+                                    className={`
+                                        flex items-center space-x-2 p-3 rounded-xl border-2 transition-all cursor-pointer group
+                                        ${(config.allowed_shapes || []).includes(shape as any)
+                                            ? 'bg-green-500/10 border-green-500/30'
+                                            : 'bg-[#1e293b] border-transparent hover:border-[#334155]'}
+                                    `}
+                                >
                                     <Checkbox
                                         id={shape}
                                         checked={(config.allowed_shapes || []).includes(shape as any)}
-                                        onCheckedChange={() => toggleShape(shape)}
-                                        className="border-gray-500 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                                        onCheckedChange={() => { }} // Controlado por el div
+                                        className="border-gray-500 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 pointer-events-none"
                                     />
                                     <label
                                         htmlFor={shape}
-                                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-300 capitalize"
+                                        className="text-[11px] font-bold leading-none cursor-pointer text-gray-300 capitalize group-hover:text-white transition-colors pointer-events-none"
                                     >
                                         {shape}
                                     </label>

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "@/components/session/UserMenu";
 import { redirect } from "next/navigation";
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
