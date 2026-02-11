@@ -18,7 +18,7 @@ export interface FormFieldDefinition {
 // --- 2. TIPOS BASE DE LA BASE DE DATOS ---
 
 export type ShapeType = 'point' | 'line' | 'polygon';
-export type UserRole = 'superadmin' | 'admin' | 'supervisor' | 'invited';
+
 
 // Interfaz para la tabla 'categories'
 export interface Category {
@@ -31,13 +31,7 @@ export interface Category {
     created_at: string;
 }
 
-// Interfaz para la tabla 'points'
-export interface Point {
-    id: string;
-    latitude: number;
-    longitude: number;
-    created_at: string;
-}
+
 
 // Interfaz para la tabla 'shapes' (Actualizada)
 export interface Shape {
@@ -56,15 +50,7 @@ export interface Shape {
     updated_at: string;
 }
 
-// Interfaz para la tabla 'profiles'
-export interface Profile {
-    id: string;
-    first_name: string | null;
-    last_name: string | null;
-    role: UserRole;
-    config: Record<string, any>;
-    updated_at: string;
-}
+
 
 // --- 3. PAYLOADS Y RESPUESTAS DE API ---
 

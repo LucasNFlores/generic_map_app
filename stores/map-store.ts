@@ -4,8 +4,8 @@ import type { ShapeWithPoints, Category, MapConfiguration } from '@/types';
 
 // --- Definiciones de Estado ---
 // 1. Añadimos el nuevo modo 'edit-shape'
-export type MapMode = 'browse' | 'add-point' | 'add-line' | 'add-polygon' | 'edit-shape';
-export type PendingPoints = Array<{ lat: number; lng: number }>;
+type MapMode = 'browse' | 'add-point' | 'add-line' | 'add-polygon' | 'edit-shape';
+type PendingPoints = Array<{ lat: number; lng: number }>;
 
 
 // --- 1. MapState (Actualizado) ---

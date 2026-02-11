@@ -10,14 +10,14 @@ import {
     defaultInitialState
 } from '@/stores/map-store';
 
-export type MapStoreApi = ReturnType<typeof createMapStore>;
+type MapStoreApi = ReturnType<typeof createMapStore>;
 
 // 2. Creamos el Contexto de React
-export const MapStoreContext = createContext<MapStoreApi | undefined>(
+const MapStoreContext = createContext<MapStoreApi | undefined>(
     undefined,
 );
 
-export interface MapStoreProviderProps {
+interface MapStoreProviderProps {
     children: ReactNode;
 }
 
