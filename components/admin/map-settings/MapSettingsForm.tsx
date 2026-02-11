@@ -43,6 +43,9 @@ export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Pro
     const [config, setConfig] = useState<MapConfiguration>(initialConfig || defaultState);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Style helper: manage custom mode state
+    const [isCustomMode, setIsCustomMode] = useState(!MAPTILER_STYLES.some(s => s.url === config.mapbox_style));
+
     const viewState = useMapStore((state) => state.viewState);
 
     useEffect(() => {
@@ -53,6 +56,13 @@ export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Pro
 
     const updateConfig = (updates: Partial<MapConfiguration>) => {
         const newConfig = { ...config, ...updates };
+
+        // If a new style is provided and matches a preset, auto-exit custom mode
+        if (updates.mapbox_style) {
+            const isPreset = MAPTILER_STYLES.some(s => s.url === updates.mapbox_style);
+            if (isPreset) setIsCustomMode(false);
+        }
+
         setConfig(newConfig);
         onChange(newConfig);
     };
@@ -119,30 +129,52 @@ export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Pro
                             key={style.name}
                             onClick={() => updateConfig({ mapbox_style: style.url })}
                             className={`
-                                cursor-pointer rounded-xl border-2 p-3 transition-all hover:bg-[#1e293b]
-                                ${config.mapbox_style === style.url
-                                    ? 'border-blue-500 bg-[#1e293b] ring-2 ring-blue-500/20'
+                                cursor-pointer rounded-xl border-2 p-3 transition-all hover:bg-[#1e293b] group
+                                ${config.mapbox_style === style.url && !isCustomMode
+                                    ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20'
                                     : 'border-[#334155] bg-[#0f172a] opacity-70 hover:opacity-100'}
                             `}
                         >
                             <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden relative">
-                                <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500 bg-[#020617]">
-                                    {style.name} Preview
+                                <div className="absolute inset-0 flex items-center justify-center text-[10px] text-gray-500 bg-[#020617] uppercase tracking-tighter">
+                                    {style.name}
                                 </div>
                             </div>
-                            <span className="text-sm font-medium text-white block text-center">{style.name}</span>
+                            <span className="text-xs font-bold text-white block text-center uppercase tracking-tight">{style.name}</span>
                         </div>
                     ))}
+
+                    {/* Custom Style Option */}
+                    <div
+                        onClick={() => setIsCustomMode(true)}
+                        className={`
+                            cursor-pointer rounded-xl border-2 p-3 transition-all hover:bg-[#1e293b] group
+                            ${isCustomMode
+                                ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20'
+                                : 'border-[#334155] bg-[#0f172a] opacity-70 hover:opacity-100'}
+                        `}
+                    >
+                        <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden relative border border-dashed border-[#334155] flex items-center justify-center">
+                            <Layers size={20} className={isCustomMode ? 'text-blue-400' : 'text-gray-600'} />
+                        </div>
+                        <span className="text-xs font-bold text-white block text-center uppercase tracking-tight">Personalizado</span>
+                    </div>
                 </div>
-                <div className="mt-2 space-y-1.5">
-                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block ml-1">URL Personalizada (MapTiler/Mapbox)</Label>
-                    <Input
-                        value={config.mapbox_style}
-                        onChange={(e) => updateConfig({ mapbox_style: e.target.value })}
-                        className="bg-[#1e293b] border-[#334155] text-white text-xs h-10 px-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg selection:bg-blue-500/30"
-                        placeholder="https://api.maptiler.com/maps/..."
-                    />
-                </div>
+
+                {isCustomMode && (
+                    <div className="mt-4 space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="flex justify-between items-center ml-1">
+                            <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">URL MapTiler / Mapbox / TileJSON</Label>
+                        </div>
+                        <Input
+                            value={config.mapbox_style}
+                            onChange={(e) => updateConfig({ mapbox_style: e.target.value })}
+                            className="bg-[#1e293b] border-[#334155] text-white text-xs h-10 px-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg selection:bg-blue-500/30"
+                            placeholder="https://api.maptiler.com/maps/..."
+                        />
+                        <p className="text-[9px] text-gray-500 ml-1">Pega aquí el enlace .json de tu estilo personalizado.</p>
+                    </div>
+                )}
             </section>
 
             <div className="h-px bg-[#1e293b]" />
