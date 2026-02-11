@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, LayoutDashboard, Map, ClipboardList, Users, LogOut, MapPinned } from 'lucide-react';
+import { ChevronDown, ChevronUp, LayoutDashboard, Map, ClipboardList, Users, LogOut, MapPinned, Sun, Moon, Laptop } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ThemeSwitcher } from '@/components/theme-switcher';
+import { useTheme } from 'next-themes';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-interface UserMenuProps {
+export interface UserMenuProps {
     user: {
         first_name: string | null;
         last_name: string | null;
@@ -19,6 +21,7 @@ interface UserMenuProps {
 export default function UserMenu({ user }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isDocked, setIsDocked] = useState(true); // Nuevo estado para auto-ocultar
+    const { theme, setTheme } = useTheme();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -78,12 +81,12 @@ export default function UserMenu({ user }: UserMenuProps) {
                 <div className="flex items-center justify-between p-2 px-3">
                     <div className="flex items-center gap-4">
                         {/* Avatar / Logo */}
-                        <div className="flex items-center gap-2">
-                            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20">
+                        <Link href="/" className="flex items-center gap-2 group/logo hover:opacity-80 transition-opacity">
+                            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20 group-hover/logo:bg-primary/20 transition-colors">
                                 <MapPinned className="h-6 w-6" />
                             </div>
                             <p className="font-bold text-sm text-foreground leading-tight hidden xs:block">GenericMap</p>
-                        </div>
+                        </Link>
 
                         {/* User Info */}
                         <div className="flex flex-col">
@@ -101,6 +104,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
+                        <div className="h-6 w-[1px] bg-border/50 mx-1" />
                         {/* Toggle Bottom part */}
                         <button
                             onClick={(e) => {
@@ -138,6 +142,17 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                     <div className="h-[1px] bg-border/50 my-2 mx-4" />
 
+                    <div className="px-6 py-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Tema</p>
+                        <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-lg border border-border/50">
+                            <ThemeOption theme="light" active={theme === 'light'} onClick={() => setTheme('light')} icon={<Sun className="h-4 w-4" />} />
+                            <ThemeOption theme="dark" active={theme === 'dark'} onClick={() => setTheme('dark')} icon={<Moon className="h-4 w-4" />} />
+                            <ThemeOption theme="system" active={theme === 'system'} onClick={() => setTheme('system')} icon={<Laptop className="h-4 w-4" />} />
+                        </div>
+                    </div>
+
+                    <div className="h-[1px] bg-border/50 my-2 mx-4" />
+
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
@@ -160,5 +175,25 @@ function MenuLink({ href, icon, label }: { href: string; icon: React.ReactNode; 
             <span className="text-muted-foreground">{icon}</span>
             <span>{label}</span>
         </Link>
+    );
+}
+
+function ThemeOption({ theme, active, onClick, icon }: { theme: string; active: boolean; onClick: () => void; icon: React.ReactNode }) {
+    return (
+        <button
+            onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+            }}
+            className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2 rounded-md transition-all",
+                active
+                    ? "bg-background shadow-sm text-primary border border-border/50"
+                    : "text-muted-foreground hover:bg-background/50"
+            )}
+        >
+            {icon}
+            <span className="text-[10px] font-bold capitalize">{theme}</span>
+        </button>
     );
 }
