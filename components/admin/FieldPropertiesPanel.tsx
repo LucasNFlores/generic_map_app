@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Settings, Trash2, X } from 'lucide-react';
+import { Settings, Trash2, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Category, FormFieldDefinition } from '@/types';
@@ -12,6 +12,7 @@ interface FieldPropertiesPanelProps {
     onChangeCategory: (category: Category) => void;
     onChangeField: (updates: Partial<FormFieldDefinition>) => void;
     onClose: () => void;
+    className?: string;
 }
 
 export function FieldPropertiesPanel({
@@ -19,7 +20,8 @@ export function FieldPropertiesPanel({
     selectedCategory,
     onChangeCategory,
     onChangeField,
-    onClose
+    onClose,
+    className
 }: FieldPropertiesPanelProps) {
 
     // Find selected field if any
@@ -28,22 +30,32 @@ export function FieldPropertiesPanel({
         return selectedCategory.fields_definition.find(f => f.id === selectedFieldId);
     }, [selectedFieldId, selectedCategory]);
 
+    const isSettingsMode = selectedFieldId === 'SETTINGS';
+
     return (
-        <aside className="w-80 bg-[#101623] border-l border-[#222f49] flex flex-col z-20 shadow-xl overflow-y-auto">
+        <aside className={cn("w-full md:w-80 bg-[#101623] border-l border-[#222f49] flex flex-col z-20 shadow-xl overflow-y-auto", className)}>
             <div className="flex justify-between items-center border-b border-[#222f49] p-4">
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden -ml-2 text-[#90a4cb]"
+                        onClick={onClose}
+                    >
+                        <ArrowLeft size={18} />
+                    </Button>
                     <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
                         <Settings size={14} />
                     </div>
                     <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/90">
-                        {selectedFieldId ? 'Propiedades del Campo' : 'Ajustes de Categoría'}
+                        {selectedField ? 'Propiedades del Campo' : 'Ajustes de Categoría'}
                     </h3>
                 </div>
 
                 <Button
                     variant="ghost"
                     onClick={onClose}
-                    className="w-fit text-[#90a4cb] hover:text-white"
+                    className="w-fit text-[#90a4cb] hover:text-white hidden md:flex"
                 >
                     <X size={14} />
                 </Button>
@@ -51,8 +63,8 @@ export function FieldPropertiesPanel({
             </div>
 
             <div className="flex-1 p-6 space-y-8">
-                {/* Category Basic Settings */}
-                {!selectedFieldId && selectedCategory && (
+                {/* Category Basic Settings - Show if explicitly in settings mode OR no field selected (desktop default) */}
+                {(isSettingsMode || (!selectedFieldId && selectedCategory)) && (
                     <div className="space-y-6">
                         <div>
                             <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">
@@ -62,8 +74,8 @@ export function FieldPropertiesPanel({
                                 <div>
                                     <label className="text-xs text-[#90a4cb] block mb-1.5 font-medium">Nombre de la Categoría</label>
                                     <input
-                                        value={selectedCategory.name}
-                                        onChange={(e) => onChangeCategory({ ...selectedCategory, name: e.target.value })}
+                                        value={selectedCategory?.name || ''}
+                                        onChange={(e) => selectedCategory && onChangeCategory({ ...selectedCategory, name: e.target.value })}
                                         className="w-full bg-[#161e2e] border border-[#222f49] rounded-xl px-4 py-2.5 text-sm text-white focus:border-primary outline-none transition-all shadow-inner"
                                     />
                                 </div>
@@ -72,13 +84,13 @@ export function FieldPropertiesPanel({
                                     <div className="flex gap-3">
                                         <input
                                             type="color"
-                                            value={selectedCategory.color}
-                                            onChange={(e) => onChangeCategory({ ...selectedCategory, color: e.target.value })}
+                                            value={selectedCategory?.color || '#000000'}
+                                            onChange={(e) => selectedCategory && onChangeCategory({ ...selectedCategory, color: e.target.value })}
                                             className="w-12 h-12 bg-[#161e2e] border border-[#222f49] p-1 cursor-pointer rounded-xl"
                                         />
                                         <input
-                                            value={selectedCategory.color}
-                                            onChange={(e) => onChangeCategory({ ...selectedCategory, color: e.target.value })}
+                                            value={selectedCategory?.color || '#000000'}
+                                            onChange={(e) => selectedCategory && onChangeCategory({ ...selectedCategory, color: e.target.value })}
                                             className="flex-1 bg-[#161e2e] border border-[#222f49] rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary outline-none uppercase font-mono"
                                         />
                                     </div>

@@ -10,6 +10,7 @@ interface CategorySidebarProps {
     onSelectCategory: (category: Category) => void;
     loading: boolean;
     onNewCategory?: () => void;
+    className?: string;
 }
 
 export function CategorySidebar({
@@ -17,10 +18,11 @@ export function CategorySidebar({
     selectedCategory,
     onSelectCategory,
     loading,
-    onNewCategory
+    onNewCategory,
+    className
 }: CategorySidebarProps) {
     return (
-        <aside className="w-72 bg-[#101623] border-r border-[#222f49] flex flex-col z-10">
+        <aside className={cn("w-full md:w-72 bg-[#101623] border-r border-[#222f49] flex flex-col z-10", className)}>
             <div className="p-4 border-b border-[#222f49]">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#90a4cb]" size={18} />

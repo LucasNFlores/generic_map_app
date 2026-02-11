@@ -8,9 +8,11 @@ import {
     Search,
     Bell,
     Save,
-    ArrowLeft
+    ArrowLeft,
+    Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import type { Category, FormFieldDefinition } from '@/types';
 import { FieldDefinitionBuilder } from '@/components/admin/FieldDefinitionBuilder';
 import { CategorySidebar } from '@/components/admin/CategorySidebar';
@@ -106,20 +108,34 @@ export default function CategoriesAdminPage() {
 
     return (
         <div className="flex flex-col h-full bg-[#101622] text-white overflow-hidden font-sans">
-
             {/* Main Workspace */}
             <div className="flex flex-1 overflow-hidden relative">
                 {/* Left Sidebar: Categories List */}
                 <CategorySidebar
                     categories={categories}
                     selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
+                    onSelectCategory={(cat) => {
+                        setSelectedCategory(cat);
+                        setSelectedFieldId(''); // Reset field selection when changing category
+                    }}
                     loading={loading}
                     onNewCategory={handleNewCategory}
+                    className={cn(
+                        // Mobile (< md): Hidden if category selected
+                        selectedCategory ? "hidden" : "flex",
+                        // Tablet (md - xl): Flex by default, but Hidden if editing a field (sliding window)
+                        "md:flex",
+                        selectedFieldId ? "md:hidden" : "",
+                        // Desktop (>= xl): Always flex
+                        "xl:flex"
+                    )}
                 />
 
                 {/* Center Canvas: Builder Area */}
-                <main className="flex-1 bg-[#0b0f19] relative overflow-hidden flex flex-col">
+                <main className={cn(
+                    "flex-1 bg-[#0b0f19] relative overflow-hidden flex flex-col",
+                    (!selectedCategory || (selectedFieldId && selectedFieldId !== '')) ? "hidden md:flex" : "flex"
+                )}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                         style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
@@ -127,28 +143,48 @@ export default function CategoriesAdminPage() {
 
                     {selectedCategory ? (
                         <>
-                            <div className="flex-none p-8 pb-4 z-10">
-                                <div className="flex items-end justify-between mb-2">
-                                    <div>
-                                        <h1 className="text-3xl font-bold text-white mb-1">
-                                            Categoria: {selectedCategory.name}
-                                        </h1>
-                                        <p className="text-[#90a4cb] text-sm">
-                                            Configura los campos que tendra esta categoria
-                                        </p>
+                            <div className="flex-none p-4 md:p-8 pb-4 z-10 border-b border-[#222f49]/50 md:border-none">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="md:hidden -ml-2 text-[#90a4cb] hover:text-white"
+                                            onClick={() => setSelectedCategory(null)}
+                                        >
+                                            <ArrowLeft size={18} />
+                                        </Button>
+                                        <div className="flex-1">
+                                            <h1 className="text-xl md:text-3xl font-bold text-white mb-1 truncate">
+                                                {selectedCategory.name}
+                                            </h1>
+                                            <p className="text-[#90a4cb] text-xs md:text-sm hidden md:block">
+                                                Configura los campos que tendra esta categoria
+                                            </p>
+                                        </div>
                                     </div>
-                                    <Button
-                                        className="bg-primary hover:bg-blue-600 shadow-[0_0_20px_rgba(37,106,244,0.15)]"
-                                        onClick={handleSave}
-                                        disabled={isSaving}
-                                    >
-                                        <Save size={18} className="mr-2" />
-                                        {isSaving ? 'Guardando...' : 'Guardar'}
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-[#90a4cb] hover:text-white md:hidden"
+                                            onClick={() => setSelectedFieldId('SETTINGS')}
+                                        >
+                                            <Settings size={18} />
+                                        </Button>
+                                        <Button
+                                            className="bg-primary hover:bg-blue-600 shadow-[0_0_20px_rgba(37,106,244,0.15)] h-9 md:h-10 px-3 md:px-4"
+                                            onClick={handleSave}
+                                            disabled={isSaving}
+                                        >
+                                            <Save size={16} className="mr-0 md:mr-2" />
+                                            <span className="hidden md:inline">{isSaving ? 'Guardando...' : 'Guardar'}</span>
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-8 pb-20 pt-2 custom-scrollbar z-10">
+                            <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-20 pt-4 custom-scrollbar z-10">
                                 <div className="max-w-3xl mx-auto">
                                     <FieldDefinitionBuilder
                                         fields={selectedCategory.fields_definition || []}
@@ -159,7 +195,6 @@ export default function CategoriesAdminPage() {
                                         selectedFieldId={selectedFieldId}
                                         onSelectField={setSelectedFieldId}
                                     />
-
                                 </div>
                             </div>
                         </>
@@ -177,6 +212,9 @@ export default function CategoriesAdminPage() {
                     onChangeCategory={setSelectedCategory}
                     onChangeField={handleUpdateField}
                     onClose={() => setSelectedFieldId('')}
+                    className={cn(
+                        !selectedFieldId ? "hidden xl:flex" : "flex"
+                    )}
                 />
             </div>
 
