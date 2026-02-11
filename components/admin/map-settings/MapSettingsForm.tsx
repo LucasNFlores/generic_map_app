@@ -7,10 +7,9 @@ import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from '@/components/ui/badge';
+import { SelectableCard } from '@/components/ui/selectable-card';
 import { MapPin, Save, Globe, Eye, Layers, Settings2 } from 'lucide-react';
 
 interface Props {
@@ -31,6 +30,7 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
         id: '',
         is_active: true,
         mapbox_style: MAPTILER_STYLES[0].url,
+        initial_position_mode: 'custom',
         default_center: { lng: -58.3816, lat: -34.6037, zoom: 12 },
         role_overrides: {},
         enabled_controls: ['zoom', 'scale', 'geolocate', 'fullscreen'],
@@ -42,7 +42,6 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
     const [config, setConfig] = useState<MapConfiguration>(initialConfig || defaultState);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Map Store access for capturing view
     const viewState = useMapStore((state) => state.viewState);
 
     useEffect(() => {
@@ -126,7 +125,6 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                             `}
                         >
                             <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden relative">
-                                {/* Placeholder for image if we had one */}
                                 <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500 bg-[#020617]">
                                     {style.name} Preview
                                 </div>
@@ -135,7 +133,6 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                         </div>
                     ))}
                 </div>
-                {/* Custom URL Input */}
                 <div className="mt-2 space-y-1.5">
                     <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block ml-1">URL Personalizada (MapTiler/Mapbox)</Label>
                     <Input
@@ -149,49 +146,61 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
 
             <div className="h-px bg-[#1e293b]" />
 
-            {/* Default Center */}
+            {/* Default Center & Mode Selector */}
             <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
-                        <MapPin size={14} />
-                        Posición Inicial
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCaptureView}
-                        className="h-7 text-xs border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300"
-                    >
-                        <Eye size={12} className="mr-1.5" />
-                        Capturar Vista Actual
-                    </Button>
+                <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
+                    <MapPin size={14} />
+                    Posición Inicial
                 </div>
 
-                <Card className="bg-[#1e293b]/50 border-[#334155]">
-                    <CardContent className="p-3 grid grid-cols-3 gap-2 text-center">
-                        <div>
-                            <span className="text-[10px] uppercase text-gray-500 font-bold block">Latitud</span>
-                            <span className="text-sm text-white font-mono">{config.default_center.lat}</span>
-                        </div>
-                        <div>
-                            <span className="text-[10px] uppercase text-gray-500 font-bold block">Longitud</span>
-                            <span className="text-sm text-white font-mono">{config.default_center.lng}</span>
-                        </div>
-                        <div>
-                            <span className="text-[10px] uppercase text-gray-500 font-bold block">Zoom</span>
-                            <span className="text-sm text-white font-mono">{config.default_center.zoom}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <div className="pt-2">
-                    <Label className="text-sm text-white mb-2 block">Excepciones por Rol</Label>
-                    <div className="p-3 rounded-lg border border-dashed border-[#334155] bg-[#0f172a]/50 text-center">
-                        <p className="text-xs text-gray-500">
-                            Próximamente: Configurar vistas específicas para Supervisores o Invitados.
-                        </p>
-                    </div>
+                <div className="grid grid-cols-3 gap-2">
+                    {[
+                        { id: 'custom', label: 'Personalizado', icon: <Settings2 size={16} /> },
+                        { id: 'current_location', label: 'Ubicación', icon: <MapPin size={16} /> },
+                        { id: 'fit_shapes', label: 'Ajustar Formas', icon: <Globe size={16} /> },
+                    ].map((mode) => (
+                        <SelectableCard
+                            key={mode.id}
+                            selected={config.initial_position_mode === mode.id}
+                            onClick={() => updateConfig({ initial_position_mode: mode.id as any })}
+                            icon={mode.icon}
+                            label={mode.label}
+                            className="h-full"
+                        />
+                    ))}
                 </div>
+
+                {config.initial_position_mode === 'custom' && (
+                    <div className="space-y-3">
+                        <div className="flex justify-end">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCaptureView}
+                                className="h-7 w-full text-xs bg-blue-500/10 text-blue-300 border-blue-500/20 hover:bg-transparent hover:border-blue-500/40 hover:text-blue-400 transition-all font-bold"
+                            >
+                                <Eye size={12} className="mr-1.5" />
+                                Capturar Vista Actual
+                            </Button>
+                        </div>
+                        <Card className="bg-[#1e293b]/50 border-[#334155]">
+                            <CardContent className="p-3 grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Latitud</span>
+                                    <span className="text-sm text-white font-mono">{config.default_center.lat}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Longitud</span>
+                                    <span className="text-sm text-white font-mono">{config.default_center.lng}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Zoom</span>
+                                    <span className="text-sm text-white font-mono">{config.default_center.zoom}</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
             </section>
 
             <div className="h-px bg-[#1e293b]" />
@@ -221,7 +230,7 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                                     <Checkbox
                                         id={control}
                                         checked={(config.enabled_controls || []).includes(control)}
-                                        onCheckedChange={() => { }} // Controlado por el div
+                                        onCheckedChange={() => { }}
                                         className="border-gray-500 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 pointer-events-none"
                                     />
                                     <label
@@ -252,7 +261,7 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                                     <Checkbox
                                         id={shape}
                                         checked={(config.allowed_shapes || []).includes(shape as any)}
-                                        onCheckedChange={() => { }} // Controlado por el div
+                                        onCheckedChange={() => { }}
                                         className="border-gray-500 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 pointer-events-none"
                                     />
                                     <label
@@ -268,7 +277,7 @@ export function MapSettingsForm({ initialConfig, onChange }: Props) {
                 </div>
             </section>
 
-            {/* Floating Save Button (Mobile/Desktop) */}
+            {/* Floating Save Button */}
             <div className="sticky bottom-0 pt-4 bg-gradient-to-t from-[#0f172a] to-transparent pb-4">
                 <Button
                     onClick={handleSave}
