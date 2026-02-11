@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "@/components/session/UserMenu";
+import { redirect } from "next/navigation";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ProtectedLayout({
   children,
@@ -9,27 +13,34 @@ export default async function ProtectedLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) {
+    return redirect("/auth/login");
+  }
+
   // Obtenemos el perfil completo
   let profileData = {
     first_name: null,
     last_name: null,
     role: 'invited',
-    email: user?.email
+    email: user.email
   };
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('first_name, last_name, role')
-      .eq('id', user.id)
-      .single();
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('first_name, last_name, role')
+    .eq('id', user.id)
+    .single();
 
-    if (profile) {
-      profileData = {
-        ...profileData,
-        ...profile
-      };
-    }
+  if (profile && !error) {
+    profileData = {
+      ...profileData,
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+      role: profile.role
+    };
+  } else {
+    // Si no hay perfil, intentamos crearlo al vuelo o mostrar error en consola
+    console.error("ProtectedLayout: No profile found for user", user.id, error);
   }
 
   return (
