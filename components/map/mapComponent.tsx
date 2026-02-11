@@ -9,7 +9,8 @@ import Map, {
 import { useMapStore } from '@/providers/map-store-provider';
 import { useCallback, useMemo, useEffect } from 'react';
 import type { MapStore } from '@/stores/map-store';
-import type { MapConfiguration } from '@/types';
+import type { MapConfiguration, ShapeWithPoints } from '@/types';
+import maplibregl from 'maplibre-gl';
 
 import { SavedShapesLayer } from './layers/SavedShapesLayer';
 import { PendingDrawLayer } from './layers/PendingDrawLayer';
@@ -46,6 +47,70 @@ export default function MapComponent({ isReadOnly = false, customConfig = null }
     }, [mapConfig, customConfig, fetchMapConfig]);
 
     const activeConfig = customConfig || mapConfig;
+
+    // --- LOGIC: Initial Position Modes ---
+    useEffect(() => {
+        if (!activeConfig) return;
+
+        const mode = activeConfig.initial_position_mode;
+
+        if (mode === 'custom') {
+            setViewState({
+                ...viewState,
+                longitude: activeConfig.default_center.lng,
+                latitude: activeConfig.default_center.lat,
+                zoom: activeConfig.default_center.zoom,
+            });
+        } else if (mode === 'current_location') {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setViewState({
+                            ...viewState,
+                            longitude: position.coords.longitude,
+                            latitude: position.coords.latitude,
+                            zoom: 14, // Default zoom for current location
+                        });
+                    },
+                    (error) => {
+                        console.warn("Geolocation permission denied or error:", error);
+                    }
+                );
+            }
+        } else if (mode === 'fit_shapes' && shapes.length > 0) {
+            try {
+                const bounds = new maplibregl.LngLatBounds();
+                let hasPoints = false;
+
+                shapes.forEach((shape: ShapeWithPoints) => {
+                    shape.shape_points?.forEach(sp => {
+                        if (sp.points) {
+                            bounds.extend([sp.points.longitude, sp.points.latitude]);
+                            hasPoints = true;
+                        }
+                    });
+                });
+
+                if (hasPoints) {
+                    // We don't have easy access to the map instance here unless we use a ref
+                    // But we can approximate center/zoom or use jumpTo if we had the map ref.
+                    // For now, let's just calculate the center.
+                    const center = bounds.getCenter();
+                    setViewState({
+                        ...viewState,
+                        longitude: center.lng,
+                        latitude: center.lat,
+                        zoom: 12, // Approximate zoom or we could calculate fitBounds zoom
+                    });
+                }
+            } catch (e) {
+                console.error("Error calculating bounds:", e);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeConfig?.initial_position_mode]);
+    // We only trigger when activeConfig.id changes or when the mode changes explicitly.
+    // Actually, usually we want this only ONCE when the app loads or config is fetched.
 
     // --- 2. (NUEVO) Generar la lista de IDs de capas interactivas ---
     const interactiveLayerIds = useMemo(() => {

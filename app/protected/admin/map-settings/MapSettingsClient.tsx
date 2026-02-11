@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic';
 import { MapSettingsForm } from '@/components/admin/map-settings/MapSettingsForm';
 import { MapStoreProvider } from '@/providers/map-store-provider';
 import type { MapConfiguration } from '@/types';
-import { Smartphone, Monitor } from 'lucide-react';
+import { Smartphone, Monitor, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 const MapComponent = dynamic(() => import('@/components/map/mapComponent'), {
     ssr: false,
@@ -29,7 +30,16 @@ export function MapSettingsClient({ initialConfig }: Props) {
                 {/* Left Panel: Settings Form */}
                 <div className="w-full lg:w-[400px] xl:w-[450px] flex-none bg-[#0f172a] border-r border-[#1e293b] flex flex-col z-20 shadow-2xl">
                     <div className="p-6 border-b border-[#1e293b] bg-[#131c2e]">
-                        <h1 className="text-2xl font-extrabold text-white">Configuración</h1>
+                        <div className='flex gap-2 items-center'>
+                            <Link
+                                href="/protected/map"
+                                className="p-2.5 hover:bg-[#1e293b] rounded-xl transition-all border border-[#1e293b] bg-[#0f172a] shadow-lg group"
+                                title="Volver al mapa"
+                            >
+                                <ArrowLeft size={20} className="text-[#94a3b8] group-hover:text-white transition-colors" />
+                            </Link>
+                            <h1 className="text-2xl font-extrabold text-white">Configuración</h1>
+                        </div>
                         <p className="text-gray-400 text-sm mt-1">Personaliza la experiencia del mapa</p>
                     </div>
 
@@ -45,9 +55,9 @@ export function MapSettingsClient({ initialConfig }: Props) {
                 <div className="flex-1 relative flex flex-col">
                     {/* Toolbar overlay */}
                     <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
-                        <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-2">
+                        <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-white text-xs font-bold capitalize tracking-wider shadow-lg flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            Vista Previa en Vivo
+                            Vista Previa
                         </div>
 
                         {/* Mock device toggles (Visual only for now) */}

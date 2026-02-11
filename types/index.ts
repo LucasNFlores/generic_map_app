@@ -114,10 +114,13 @@ export type GeoJsonFeatureCollection = {
 
 // --- 5. CONFIGURACIÓN DEL MAPA ---
 
+export type InitialPositionMode = 'custom' | 'current_location' | 'fit_shapes';
+
 export interface MapConfiguration {
     id: string;
     is_active: boolean;
     mapbox_style: string;
+    initial_position_mode: InitialPositionMode;
     default_center: {
         lng: number;
         lat: number;

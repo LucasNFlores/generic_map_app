@@ -55,6 +55,7 @@ export async function PUT(req: NextRequest) {
             .from('map_configuration')
             .update({
                 mapbox_style: body.mapbox_style,
+                initial_position_mode: body.initial_position_mode,
                 default_center: body.default_center,
                 role_overrides: body.role_overrides,
                 enabled_controls: body.enabled_controls,
