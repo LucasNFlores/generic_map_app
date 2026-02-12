@@ -8,7 +8,7 @@ import { useTheme } from 'next-themes';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-export interface UserMenuProps {
+interface UserMenuProps {
     user: {
         first_name: string | null;
         last_name: string | null;

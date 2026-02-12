@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Search, ArrowLeft, Mail, UserPlus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Search, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { UserTable } from './UserTable';
@@ -135,10 +134,6 @@ export function UserManagementClient({
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="gap-2">
-                        <Mail size={16} />
-                        Exportar Log
-                    </Button>
 
                     <InviteUserDialog
                         isOpen={isInviteOpen}
