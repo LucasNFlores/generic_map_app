@@ -82,7 +82,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     <div className="flex items-center gap-4">
                         {/* Avatar / Logo */}
                         <Link href="/" className="flex items-center gap-2 group/logo hover:opacity-80 transition-opacity">
-                            <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20 group-hover/logo:bg-primary/20 transition-colors">
+                            <div className="h-11 w-11 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-blue-200 shadow-inner border border-primary/20 dark:border-primary/30 group-hover/logo:bg-primary/20 dark:group-hover/logo:bg-primary/30 transition-colors">
                                 <MapPinned className="h-6 w-6" />
                             </div>
                             <p className="font-bold text-sm text-foreground leading-tight hidden xs:block">GenericMap</p>
@@ -90,12 +90,12 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                         {/* User Info */}
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm text-foreground leading-tight truncate max-w-[150px]">
+                            <span className="font-semibold text-sm text-foreground tracking-wide truncate max-w-[150px]">
                                 {fullName}
                             </span>
                             <span className={cn(
-                                "text-[10px] font-black uppercase tracking-widest",
-                                roleNormalized === 'invited' ? "text-muted-foreground" : "text-primary"
+                                "text-[10px] font-bold capitalize tracking-widest",
+                                roleNormalized === 'invited' ? "text-muted-foreground" : "text-primary dark:text-blue-300"
                             )}>
                                 {roleLabel}
                             </span>
