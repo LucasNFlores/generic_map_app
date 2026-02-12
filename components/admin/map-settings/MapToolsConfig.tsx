@@ -2,7 +2,7 @@
 
 import { Settings2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { ToggleCard } from '@/components/ui/toggle-card';
 
 interface MapToolsConfigProps {
     enabledControls: string[];
@@ -29,29 +29,14 @@ export function MapToolsConfig({
                     <Label className="text-foreground text-sm">Controles Visibles</Label>
                     <div className="grid grid-cols-2 gap-2">
                         {['zoom', 'scale', 'geolocate', 'fullscreen'].map(control => (
-                            <div
+                            <ToggleCard
                                 key={control}
-                                onClick={() => onToggleControl(control)}
-                                className={`
-                                    flex items-center space-x-3 p-3 rounded-xl border-2 transition-all cursor-pointer group
-                                    ${enabledControls.includes(control)
-                                        ? 'bg-primary/10 border-primary/30'
-                                        : 'bg-card border-transparent hover:border-border'}
-                                `}
-                            >
-                                <Checkbox
-                                    id={control}
-                                    checked={enabledControls.includes(control)}
-                                    onCheckedChange={() => { }}
-                                    className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
-                                />
-                                <label
-                                    htmlFor={control}
-                                    className="text-xs font-semibold leading-none cursor-pointer text-muted-foreground capitalize group-hover:text-foreground transition-colors pointer-events-none"
-                                >
-                                    {control}
-                                </label>
-                            </div>
+                                id={control}
+                                label={control}
+                                checked={enabledControls.includes(control)}
+                                onToggle={() => onToggleControl(control)}
+                                variant="default"
+                            />
                         ))}
                     </div>
                 </div>
@@ -60,29 +45,14 @@ export function MapToolsConfig({
                     <Label className="text-foreground text-sm">Formas Permitidas</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {['point', 'line', 'polygon'].map(shape => (
-                            <div
+                            <ToggleCard
                                 key={shape}
-                                onClick={() => onToggleShape(shape)}
-                                className={`
-                                    flex items-center space-x-2 p-3 rounded-xl border-2 transition-all cursor-pointer group
-                                    ${allowedShapes.includes(shape)
-                                        ? 'bg-emerald-500/10 border-emerald-500/30'
-                                        : 'bg-card border-transparent hover:border-border'}
-                                `}
-                            >
-                                <Checkbox
-                                    id={shape}
-                                    checked={allowedShapes.includes(shape)}
-                                    onCheckedChange={() => { }}
-                                    className="border-muted-foreground data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 pointer-events-none"
-                                />
-                                <label
-                                    htmlFor={shape}
-                                    className="text-[11px] font-bold leading-none cursor-pointer text-muted-foreground capitalize group-hover:text-foreground transition-colors pointer-events-none"
-                                >
-                                    {shape}
-                                </label>
-                            </div>
+                                id={shape}
+                                label={shape}
+                                checked={allowedShapes.includes(shape)}
+                                onToggle={() => onToggleShape(shape)}
+                                variant="success"
+                            />
                         ))}
                     </div>
                 </div>
