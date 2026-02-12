@@ -59,13 +59,13 @@ const SortableItem = ({ id, index, value, onUpdate, onRemove }: SortableItemProp
                 "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group",
                 isDragging
                     ? "bg-primary/10 border-primary/40 opacity-70 shadow-inner z-50"
-                    : "bg-[#161e2e] border-[#222f49] hover:border-primary/30"
+                    : "bg-muted/50 border-border hover:border-primary/30"
             )}
         >
             <div
                 {...attributes}
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing text-[#5a6b8c] hover:text-primary transition-colors"
+                className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-primary transition-colors"
             >
                 <DragIcon size={14} />
             </div>
@@ -74,13 +74,13 @@ const SortableItem = ({ id, index, value, onUpdate, onRemove }: SortableItemProp
                 value={value}
                 onChange={(e) => onUpdate(e.target.value)}
                 placeholder={`Option ${index + 1}`}
-                className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[#5a6b8c] font-medium"
+                className="flex-1 bg-transparent border-none text-foreground text-sm outline-none placeholder:text-muted-foreground font-medium"
             />
 
             <button
                 type="button"
                 onClick={onRemove}
-                className="text-[#5a6b8c] hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition-all"
+                className="text-muted-foreground hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition-all"
             >
                 <Trash2 size={14} />
             </button>
@@ -148,9 +148,9 @@ export const SelectOptionsEditor = ({ options, onChange }: SelectOptionsEditorPr
     };
 
     return (
-        <div className="space-y-4 pt-6 border-t border-[#222f49]">
+        <div className="space-y-4 pt-6 border-t border-border">
             <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest">Select Options</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Select Options</label>
                 <button
                     type="button"
                     onClick={addOption}
@@ -186,8 +186,8 @@ export const SelectOptionsEditor = ({ options, onChange }: SelectOptionsEditorPr
                 </DndContext>
 
                 {items.length === 0 && (
-                    <div className="text-center py-10 rounded-2xl border-2 border-dashed border-[#222f49] bg-[#161e2e]/30">
-                        <p className="text-xs text-[#5a6b8c] font-medium">No options added yet.</p>
+                    <div className="text-center py-10 rounded-2xl border-2 border-dashed border-border bg-muted/30">
+                        <p className="text-xs text-muted-foreground font-medium">No options added yet.</p>
                         <button
                             type="button"
                             onClick={addOption}

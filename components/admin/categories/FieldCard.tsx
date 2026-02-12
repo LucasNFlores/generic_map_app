@@ -50,7 +50,7 @@ export function FieldCard({ field, selected, onClick, onRemove }: FieldCardProps
             case 'multi_select': return 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20';
             case 'date': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
             case 'boolean': return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
-            default: return 'text-[#90a4cb] bg-[#1e293b] border-[#222f49]';
+            default: return 'text-muted-foreground bg-muted border-border';
         }
     };
 
@@ -62,10 +62,10 @@ export function FieldCard({ field, selected, onClick, onRemove }: FieldCardProps
             className={cn(
                 "group relative p-1 rounded-xl transition-all cursor-pointer shadow-lg border",
                 isDragging
-                    ? "bg-[#1e293b] border-primary/50 ring-2 ring-primary/40 opacity-50 z-50 scale-[1.02] shadow-2xl"
+                    ? "bg-muted border-primary/50 ring-2 ring-primary/40 opacity-50 z-50 scale-[1.02] shadow-2xl"
                     : selected
-                        ? "bg-[#1e293b]/60 border-primary/50 ring-1 ring-primary/30"
-                        : "bg-white/5 border-transparent hover:border-[#222f49] hover:bg-white/10"
+                        ? "bg-muted/60 border-primary/50 ring-1 ring-primary/30"
+                        : "bg-background/5 border-transparent hover:border-border hover:bg-background/10"
             )}
         >
             {/* Action overlap */}
@@ -73,11 +73,11 @@ export function FieldCard({ field, selected, onClick, onRemove }: FieldCardProps
 
             </div>
 
-            <div className="flex items-center gap-4 p-4 bg-[#101623]/80 rounded-lg">
+            <div className="flex items-center gap-4 p-4 bg-card/80 rounded-lg">
                 <div
                     {...attributes}
                     {...listeners}
-                    className="w-8 flex justify-center text-[#5a6b8c] cursor-grab active:cursor-grabbing hover:text-primary transition-colors"
+                    className="w-8 flex justify-center text-muted-foreground cursor-grab active:cursor-grabbing hover:text-primary transition-colors"
                 >
                     <GripVertical size={20} />
                 </div>
@@ -89,10 +89,10 @@ export function FieldCard({ field, selected, onClick, onRemove }: FieldCardProps
                         <div className="flex flex-col h-full">
                             <span className={cn("text-[10px] font-bold uppercase tracking-wider mb-0.5",
                                 field.type === 'select' ? 'text-emerald-500' :
-                                    field.type === 'date' ? 'text-blue-500' : 'text-[#90a4cb]')}>
+                                    field.type === 'date' ? 'text-blue-500' : 'text-muted-foreground')}>
                                 {field.type} Field
                             </span>
-                            <span className="text-base font-medium text-white truncate">
+                            <span className="text-base font-medium text-foreground truncate">
                                 {field.label || 'Untitled Field'}
                             </span>
                         </div>
@@ -113,7 +113,7 @@ export function FieldCard({ field, selected, onClick, onRemove }: FieldCardProps
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-[#90a4cb] hover:text-red-400 hover:bg-red-500/10"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
                                     onClick={onRemove}
                                 >
                                     <Trash2 size={16} />

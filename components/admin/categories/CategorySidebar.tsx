@@ -25,35 +25,35 @@ export function CategorySidebar({
 
 
     return (
-        <aside className={cn("w-full md:w-72 bg-[#101623] border-r border-[#222f49] flex flex-col z-10", className)}>
-            <div className="p-4 border-b border-[#222f49] space-y-4">
+        <aside className={cn("w-full md:w-72 bg-card border-r border-border flex flex-col z-10", className)}>
+            <div className="p-4 border-b border-border space-y-4">
                 <div className="flex items-center gap-3">
                     <Link
                         href="/protected/admin"
-                        className="p-2 hover:bg-[#1e293b] rounded-lg transition-all border border-[#222f49] bg-[#161e2e] group"
+                        className="p-2 hover:bg-accent rounded-lg transition-all border border-border bg-muted/50 group"
                         title="Volver al panel"
                         aria-label="Volver al panel de administración"
                     >
-                        <ArrowLeft size={16} className="text-[#90a4cb] group-hover:text-white transition-colors" aria-hidden="true" />
+                        <ArrowLeft size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
                     </Link>
-                    <span className="font-bold text-white text-sm tracking-wide">Categorías</span>
+                    <span className="font-bold text-foreground text-sm tracking-wide">Categorías</span>
                 </div>
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#90a4cb]" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                     <input
-                        className="w-full h-10 bg-[#161e2e] border border-[#222f49] rounded-xl pl-10 pr-4 text-sm text-white placeholder-[#5a6b8c] focus:outline-none focus:border-primary transition-all"
+                        className="w-full h-10 bg-muted/50 border border-border rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all"
                         placeholder="Filter categories..."
                     />
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-                <div className="px-3 py-2 text-xs font-bold text-[#5a6b8c] uppercase tracking-wider">
-                    Schemas
+                <div className="px-3 py-2 text-xs font-bold text-muted-foreground capitalize tracking-wider">
+                    Categorias existentes
                 </div>
 
                 {loading ? (
-                    <div className="p-4 text-sm text-[#5a6b8c]">Loading categories...</div>
+                    <div className="p-4 text-sm text-muted-foreground">Loading categories...</div>
                 ) : (
                     categories.map(category => (
                         <button
@@ -62,15 +62,15 @@ export function CategorySidebar({
                             className={cn(
                                 "w-full flex items-center justify-between p-3 rounded-xl transition-all group border",
                                 selectedCategory?.id === category.id
-                                    ? "bg-primary/10 border-primary/20 text-white"
-                                    : "hover:bg-white/5 border-transparent text-[#90a4cb] hover:text-white"
+                                    ? "bg-primary/10 border-primary/20 text-foreground border border-secondary border-1"
+                                    : "hover:bg-secondary border-transparent text-muted-foreground hover:text-foreground"
                             )}
                         >
                             <div className="flex items-center gap-3 text-left">
                                 <div
                                     className={cn(
                                         "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                                        selectedCategory?.id === category.id ? "bg-primary text-white" : "bg-[#1e293b] text-[#90a4cb]"
+                                        selectedCategory?.id === category.id ? "bg-accent/50 text-primary-foreground" : "bg-muted text-muted-foreground"
                                     )}
                                 >
                                     <div
@@ -93,10 +93,10 @@ export function CategorySidebar({
                 )}
             </div>
 
-            <div className="p-4 border-t border-[#222f49]">
+            <div className="p-4 border-t border-border">
                 <Button
                     variant="outline"
-                    className="w-full border-dashed border-[#314368] text-[#90a4cb] hover:text-white hover:border-primary hover:bg-primary/5 transition-all"
+                    className="w-full border-dashed border-border text-muted-foreground hover:text-foreground hover:border-primary hover:bg-primary/5 transition-all"
                     onClick={onNewCategory}
                 >
                     <Plus size={18} className="mr-2" />

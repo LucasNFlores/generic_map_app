@@ -107,7 +107,7 @@ export default function CategoriesAdminPage() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#101622] text-white overflow-hidden font-sans">
+        <div className="flex flex-col h-full bg-background text-foreground overflow-hidden font-sans">
             {/* Main Workspace */}
             <div className="flex flex-1 overflow-hidden relative">
                 {/* Left Sidebar: Categories List */}
@@ -133,30 +133,30 @@ export default function CategoriesAdminPage() {
 
                 {/* Center Canvas: Builder Area */}
                 <main className={cn(
-                    "flex-1 bg-[#0b0f19] relative overflow-hidden flex flex-col",
+                    "flex-1 bg-muted/30 relative overflow-hidden flex flex-col",
                     (!selectedCategory || (selectedFieldId && selectedFieldId !== '')) ? "hidden md:flex" : "flex"
                 )}>
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                        style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+                        style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }}
                     />
 
                     {selectedCategory ? (
                         <>
-                            <div className="flex-none p-4 md:p-8 pb-4 z-10 border-b border-[#222f49]/50 md:border-none">
+                            <div className="flex-none p-4 md:p-8 pb-4 z-10 border-b border-border md:border-none">
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="md:hidden -ml-2 text-[#90a4cb] hover:text-white"
+                                            className="md:hidden -ml-2 text-muted-foreground hover:text-foreground"
                                             onClick={() => setSelectedCategory(null)}
                                             aria-label="Volver a la lista de categorías"
                                         >
                                             <ArrowLeft size={18} aria-hidden="true" />
                                         </Button>
                                         <div className="flex-1">
-                                            <h1 className="text-xl md:text-3xl font-bold text-white mb-1 truncate">
+                                            <h1 className="text-xl md:text-3xl font-bold text-foreground mb-1 truncate">
                                                 {selectedCategory.name}
                                             </h1>
                                             <p className="text-muted-foreground text-xs md:text-sm hidden md:block">
@@ -168,7 +168,7 @@ export default function CategoriesAdminPage() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="text-[#90a4cb] hover:text-white md:hidden"
+                                            className="text-muted-foreground hover:text-foreground md:hidden"
                                             onClick={() => setSelectedFieldId('SETTINGS')}
                                             aria-label="Configuración de la categoría"
                                         >
@@ -228,11 +228,11 @@ export default function CategoriesAdminPage() {
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #222f49;
+                    background: hsl(var(--border));
                     border-radius: 10px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #314368;
+                    background: hsl(var(--muted-foreground));
                 }
             `}</style>
         </div>

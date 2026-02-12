@@ -14,7 +14,7 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
     return (
         <div className="space-y-6">
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Tipos simple</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-4">Tipos simple</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
                         { id: 'text', label: 'Texto corto', icon: <Type size={18} /> },
@@ -32,7 +32,7 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
             </div>
 
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Selección</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-4">Selección</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
                         { id: 'select', label: 'Selector único', icon: <List size={18} />, color: 'text-emerald-500' },
@@ -53,7 +53,7 @@ export function FieldTypeSelector({ currentType, onTypeSelect }: FieldTypeSelect
             </div>
 
             <div>
-                <label className="text-[10px] font-bold text-[#5a6b8c] uppercase tracking-widest block mb-4">Avanzado</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-4">Avanzado</label>
                 <div className="grid grid-cols-2 gap-3">
                     {[
                         { id: 'auto_id', label: 'Auto-ID', icon: <Fingerprint size={18} />, color: 'text-orange-500' },
