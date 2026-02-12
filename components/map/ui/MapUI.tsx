@@ -10,11 +10,11 @@ import type { MapConfiguration } from '@/types';
 import { ShapeForm } from "@/components/map/ui/ShapeInfo/ShapeForm";
 
 // Importar el contenedor de botones y los botones
-import { Container } from '../buttons/Container';
-import AddPoint from '../buttons/AddPoint';
-import AddLine from '../buttons/AddLine';
-import CancelAddPoint from '../buttons/CancelAddPoints';
-import AddPolygon from '../buttons/AddPolygon';
+import { Container } from './buttons/Container';
+import AddPoint from './buttons/AddPoint';
+import AddLine from './buttons/AddLine';
+import CancelAddPoint from './buttons/CancelAddPoints';
+import AddPolygon from './buttons/AddPolygon';
 
 interface MapUIProps {
     isReadOnly?: boolean;

@@ -1,4 +1,4 @@
-// components/map/buttons/CancelAddPoints.tsx
+// components/map/ui/buttons/CancelAddPoints.tsx
 'use client';
 
 import { useMapStore } from '@/providers/map-store-provider';

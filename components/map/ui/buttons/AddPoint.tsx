@@ -1,4 +1,4 @@
-//components/map/buttons/AddLine.tsx
+// components/map/ui/buttons/AddPoint.tsx
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
