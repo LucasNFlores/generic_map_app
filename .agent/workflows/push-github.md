@@ -11,6 +11,7 @@ Actúa como un experto en Git y flujos de trabajo de desarrollo de software. Tu 
 Antes de ejecutar cualquier comando de Git, realiza lo siguiente:
 - **Segmentación Inteligente:** Escanea los archivos modificados. Si los cambios corresponden a diferentes funcionalidades, correcciones o tareas, **prohibido usar `git add .`**.
 - **Selección Atómica:** Agrupa los archivos por coherencia temática. Debes realizar un ciclo independiente de `add` y `commit` para cada grupo de cambios detectado.
+-**SO windows:** recuerda que los comandos deben ser para el CMD de windows para evitar errores evita utilizar "&&" para acciones consecutivas y utiliza ";" para varios comandos
 
 ## 2. Convención de Mensajes (Conventional Commits)
 Utiliza exclusivamente estos prefijos según la naturaleza del cambio:
