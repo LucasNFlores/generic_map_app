@@ -6,7 +6,7 @@
   :root {
     /* Light Mode - Black Rock Refined */
     --background: 0.99 0.002 260;
-    /* Very faint cool white */
+    /* Deep contrast text */
     --foreground: 0.11 0.03 260;
     /* Deep Black Rock */
     --card: 0.98 0 0;
@@ -23,7 +23,7 @@
     --muted: 0.96 0.01 260;
     --muted-foreground: 0.45 0.04 260;
     /* Readable cool grey */
-    --accent: 0.96 0.01 260;
+    --accent: 0.95 0.01 260;
     --accent-foreground: 0.11 0.03 260;
     --destructive: 0.6 0.18 27;
     --destructive-foreground: 0.98 0.01 27;
@@ -44,11 +44,11 @@
   .dark {
     /* Dark Mode - Black Rock Refined (Desaturated Surfaces) */
     --background: 0.21 0.03 260;
-    /* Deep reduced chroma bg */
+    /* High contrast text */
     --foreground: 0.98 0.005 260;
-    /* Almost white */
-    --card: 0.14 0.24 260;
-    /* Subtle elevation, reduced saturation */
+    /* Deep dark surface, low saturation */
+    --card: 0.14 0.04 260;
+    /* Readable text on card */
     --card-foreground: 0.98 0.005 260;
     --popover: 0.14 0.04 260;
     --popover-foreground: 0.98 0.005 260;
@@ -61,7 +61,7 @@
     --muted: 0.20 0.04 260;
     --muted-foreground: 0.70 0.02 260;
     /* Good contrast for secondary text */
-    --accent: 0.20 0.04 260;
+    --accent: 0.25 0.04 260;
     --accent-foreground: 0.98 0.005 260;
     --destructive: 0.577 0.545 27.325;
     --destructive-foreground: 0.704 0.191 22.216;
