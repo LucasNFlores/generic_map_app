@@ -5,26 +5,16 @@ import type { MapConfiguration } from '@/types';
 import { useMapStore } from '@/providers/map-store-provider';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { SelectableCard } from '@/components/ui/selectable-card';
-import { MapPin, Save, Globe, Eye, Layers, Settings2 } from 'lucide-react';
+import { Save, Globe } from 'lucide-react';
+import { MapStyleSelector, MAPTILER_STYLES } from './MapStyleSelector';
+import { InitialPositionControl } from './InitialPositionControl';
+import { MapToolsConfig } from './MapToolsConfig';
 
 interface Props {
     initialConfig: MapConfiguration | null;
     onChange: (config: MapConfiguration) => void;
     onPreviewClick?: () => void;
 }
-
-const MAPTILER_STYLES = [
-    { name: 'Streets', url: 'https://api.maptiler.com/maps/streets-v2/style.json', img: '/images/style-streets.png' },
-    { name: 'Satellite', url: 'https://api.maptiler.com/maps/satellite/style.json', img: '/images/style-satellite.png' },
-    { name: 'Hybrid', url: 'https://api.maptiler.com/maps/hybrid/style.json', img: '/images/style-hybrid.png' },
-    { name: 'Dark', url: 'https://api.maptiler.com/maps/dataviz-dark/style.json', img: '/images/style-dark.png' },
-    { name: 'Light', url: 'https://api.maptiler.com/maps/dataviz-light/style.json', img: '/images/style-light.png' },
-];
 
 export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Props) {
     const defaultState: MapConfiguration = {
@@ -118,204 +108,39 @@ export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Pro
     return (
         <div className="space-y-8">
             {/* Style Selector */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
-                    <Layers size={14} />
-                    Estilo del Mapa
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {MAPTILER_STYLES.map((style) => (
-                        <div
-                            key={style.name}
-                            onClick={() => updateConfig({ mapbox_style: style.url })}
-                            className={`
-                                cursor-pointer rounded-xl border-2 p-3 transition-all hover:bg-[#1e293b] group
-                                ${config.mapbox_style === style.url && !isCustomMode
-                                    ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20'
-                                    : 'border-[#334155] bg-[#0f172a] opacity-70 hover:opacity-100'}
-                            `}
-                        >
-                            <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden relative">
-                                <div className="absolute inset-0 flex items-center justify-center text-[10px] text-gray-500 bg-[#020617] uppercase tracking-tighter">
-                                    {style.name}
-                                </div>
-                            </div>
-                            <span className="text-xs font-bold text-white block text-center uppercase tracking-tight">{style.name}</span>
-                        </div>
-                    ))}
+            <MapStyleSelector
+                mapboxStyle={config.mapbox_style}
+                onStyleChange={(url) => updateConfig({ mapbox_style: url })}
+                isCustomMode={isCustomMode}
+                onCustomModeToggle={setIsCustomMode}
+            />
 
-                    {/* Custom Style Option */}
-                    <div
-                        onClick={() => setIsCustomMode(true)}
-                        className={`
-                            cursor-pointer rounded-xl border-2 p-3 transition-all hover:bg-[#1e293b] group
-                            ${isCustomMode
-                                ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/20'
-                                : 'border-[#334155] bg-[#0f172a] opacity-70 hover:opacity-100'}
-                        `}
-                    >
-                        <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden relative border border-dashed border-[#334155] flex items-center justify-center">
-                            <Layers size={20} className={isCustomMode ? 'text-blue-400' : 'text-gray-600'} />
-                        </div>
-                        <span className="text-xs font-bold text-white block text-center uppercase tracking-tight">Personalizado</span>
-                    </div>
-                </div>
-
-                {isCustomMode && (
-                    <div className="mt-4 space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="flex justify-between items-center ml-1">
-                            <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">URL MapTiler / Mapbox / TileJSON</Label>
-                        </div>
-                        <Input
-                            value={config.mapbox_style}
-                            onChange={(e) => updateConfig({ mapbox_style: e.target.value })}
-                            className="bg-[#1e293b] border-[#334155] text-white text-xs h-10 px-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg selection:bg-blue-500/30"
-                            placeholder="https://api.maptiler.com/maps/..."
-                        />
-                        <p className="text-[9px] text-gray-500 ml-1">Pega aquí el enlace .json de tu estilo personalizado.</p>
-                    </div>
-                )}
-            </section>
-
-            <div className="h-px bg-[#1e293b]" />
+            <div className="h-px bg-border" />
 
             {/* Default Center & Mode Selector */}
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
-                    <MapPin size={14} />
-                    Posición Inicial
-                </div>
+            <InitialPositionControl
+                initialPositionMode={config.initial_position_mode}
+                defaultCenter={config.default_center}
+                onModeChange={(mode) => updateConfig({ initial_position_mode: mode })}
+                onCaptureView={handleCaptureView}
+            />
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {[
-                        { id: 'custom', label: 'Personalizado', icon: <Settings2 size={16} /> },
-                        { id: 'current_location', label: 'Ubicación actual (gps)', icon: <MapPin size={16} /> },
-                        { id: 'fit_shapes', label: 'Vista General', icon: <Globe size={16} /> },
-                    ].map((mode) => (
-                        <SelectableCard
-                            key={mode.id}
-                            selected={config.initial_position_mode === mode.id}
-                            onClick={() => updateConfig({ initial_position_mode: mode.id as any })}
-                            icon={mode.icon}
-                            label={mode.label}
-                            className="h-full"
-                        />
-                    ))}
-                </div>
-
-                {config.initial_position_mode === 'custom' && (
-                    <div className="space-y-3">
-                        <div className="flex justify-end">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleCaptureView}
-                                className="h-7 w-full text-xs bg-blue-500/10 text-blue-300 border-blue-500/20 hover:bg-transparent hover:border-blue-500/40 hover:text-blue-400 transition-all font-bold"
-                            >
-                                <Eye size={12} className="mr-1.5" />
-                                Capturar Vista Actual
-                            </Button>
-                        </div>
-                        <Card className="bg-[#1e293b]/50 border-[#334155]">
-                            <CardContent className="p-3 grid grid-cols-3 gap-2 text-center">
-                                <div>
-                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Latitud</span>
-                                    <span className="text-sm text-white font-mono">{config.default_center.lat}</span>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Longitud</span>
-                                    <span className="text-sm text-white font-mono">{config.default_center.lng}</span>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] uppercase text-gray-500 font-bold block">Zoom</span>
-                                    <span className="text-sm text-white font-mono">{config.default_center.zoom}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-            </section>
-
-            <div className="h-px bg-[#1e293b]" />
+            <div className="h-px bg-border" />
 
             {/* Controls & Shapes */}
-            <section className="space-y-6">
-                <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-xs tracking-wider">
-                    <Settings2 size={14} />
-                    Interfaz y Herramientas
-                </div>
-
-                <div className="grid gap-4">
-                    <div className="space-y-3">
-                        <Label className="text-white text-sm">Controles Visibles</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {['zoom', 'scale', 'geolocate', 'fullscreen'].map(control => (
-                                <div
-                                    key={control}
-                                    onClick={() => toggleControl(control)}
-                                    className={`
-                                        flex items-center space-x-3 p-3 rounded-xl border-2 transition-all cursor-pointer group
-                                        ${(config.enabled_controls || []).includes(control)
-                                            ? 'bg-blue-500/10 border-blue-500/30'
-                                            : 'bg-[#1e293b] border-transparent hover:border-[#334155]'}
-                                    `}
-                                >
-                                    <Checkbox
-                                        id={control}
-                                        checked={(config.enabled_controls || []).includes(control)}
-                                        onCheckedChange={() => { }}
-                                        className="border-gray-500 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 pointer-events-none"
-                                    />
-                                    <label
-                                        htmlFor={control}
-                                        className="text-xs font-semibold leading-none cursor-pointer text-gray-300 capitalize group-hover:text-white transition-colors pointer-events-none"
-                                    >
-                                        {control}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <Label className="text-white text-sm">Formas Permitidas</Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {['point', 'line', 'polygon'].map(shape => (
-                                <div
-                                    key={shape}
-                                    onClick={() => toggleShape(shape)}
-                                    className={`
-                                        flex items-center space-x-2 p-3 rounded-xl border-2 transition-all cursor-pointer group
-                                        ${(config.allowed_shapes || []).includes(shape as any)
-                                            ? 'bg-green-500/10 border-green-500/30'
-                                            : 'bg-[#1e293b] border-transparent hover:border-[#334155]'}
-                                    `}
-                                >
-                                    <Checkbox
-                                        id={shape}
-                                        checked={(config.allowed_shapes || []).includes(shape as any)}
-                                        onCheckedChange={() => { }}
-                                        className="border-gray-500 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 pointer-events-none"
-                                    />
-                                    <label
-                                        htmlFor={shape}
-                                        className="text-[11px] font-bold leading-none cursor-pointer text-gray-300 capitalize group-hover:text-white transition-colors pointer-events-none"
-                                    >
-                                        {shape}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <MapToolsConfig
+                enabledControls={config.enabled_controls || []}
+                allowedShapes={config.allowed_shapes as string[] || []}
+                onToggleControl={toggleControl}
+                onToggleShape={toggleShape}
+            />
 
             {/* Floating Save Button */}
-            <div className="sticky bottom-0 pt-4 bg-gradient-to-t from-[#0f172a] to-transparent pb-4 space-y-3">
+            <div className="sticky bottom-0 pt-4 bg-gradient-to-t from-background to-transparent pb-4 space-y-3">
                 <Button
                     onClick={onPreviewClick}
                     variant="outline"
-                    className="w-full lg:hidden bg-[#1e293b] text-blue-400 border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-300 font-bold h-10"
+                    className="w-full lg:hidden bg-card text-primary border-primary/30 hover:bg-primary/10 hover:text-primary-foreground font-bold h-10"
                 >
                     <Globe size={16} className="mr-2" />
                     Ver Mapa / Vista Previa
@@ -324,7 +149,7 @@ export function MapSettingsForm({ initialConfig, onChange, onPreviewClick }: Pro
                 <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 shadow-lg shadow-blue-900/20"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 shadow-lg shadow-primary/20"
                 >
                     <Save className="mr-2 h-4 w-4" />
                     {isSaving ? 'Guardando...' : 'Guardar Configuración'}
