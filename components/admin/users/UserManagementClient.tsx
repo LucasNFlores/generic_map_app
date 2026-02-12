@@ -135,7 +135,7 @@ export function UserManagementClient({
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Rol</label>
                                     <Select value={inviteRole} onValueChange={(v: any) => setInviteRole(v)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-full" aria-label="Seleccionar Rol">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -156,12 +156,13 @@ export function UserManagementClient({
 
             {/* Search Bar */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" aria-hidden="true" />
                 <Input
                     placeholder="Buscar usuarios por nombre, email o rol..."
                     className="pl-10 h-12 bg-card border-border shadow-sm text-base"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
+                    aria-label="Buscar usuarios"
                 />
             </div>
 
@@ -211,8 +212,8 @@ export function UserManagementClient({
                                                 </Badge>
                                             </td>
                                             <td className="px-4 py-4">
-                                                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-500">
-                                                    <CheckCircle size={12} className="fill-emerald-500 text-background" />
+                                                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-500">
+                                                    <CheckCircle size={12} className="fill-emerald-600 text-background dark:fill-emerald-500" aria-hidden="true" />
                                                     Activo
                                                 </div>
                                             </td>
@@ -222,7 +223,7 @@ export function UserManagementClient({
                                             <td className="px-4 py-4 text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label={`Acciones para ${user.first_name || user.email}`}>
                                                             <MoreVertical size={16} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -256,16 +257,18 @@ export function UserManagementClient({
                                     size="sm"
                                     disabled={currentPage <= 1}
                                     onClick={() => handlePageChange(currentPage - 1)}
+                                    aria-label="Página anterior"
                                 >
-                                    <ChevronLeft size={14} />
+                                    <ChevronLeft size={14} aria-hidden="true" />
                                 </Button>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     disabled={currentPage >= totalPages}
                                     onClick={() => handlePageChange(currentPage + 1)}
+                                    aria-label="Página siguiente"
                                 >
-                                    <ChevronRight size={14} />
+                                    <ChevronRight size={14} aria-hidden="true" />
                                 </Button>
                             </div>
                         </div>
@@ -306,15 +309,15 @@ export function UserManagementClient({
                             {initialInvitations.map((inv) => (
                                 <div key={inv.email} className="p-4 flex items-center justify-between group hover:bg-muted/30">
                                     <div className="flex items-center gap-3 overflow-hidden">
-                                        <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
-                                            <Mail size={14} />
+                                        <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-500 shrink-0">
+                                            <Mail size={14} aria-hidden="true" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="text-sm font-medium truncate">{inv.email}</div>
                                             <div className="text-xs text-muted-foreground capitalize">{inv.role}</div>
                                         </div>
                                     </div>
-                                    <Badge variant="secondary" className="text-[10px] h-5 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 shadow-none border-0">
+                                    <Badge variant="secondary" className="text-[10px] h-5 bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 shadow-none border-0">
                                         Pendiente
                                     </Badge>
                                 </div>

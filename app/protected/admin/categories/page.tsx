@@ -151,14 +151,15 @@ export default function CategoriesAdminPage() {
                                             size="icon"
                                             className="md:hidden -ml-2 text-[#90a4cb] hover:text-white"
                                             onClick={() => setSelectedCategory(null)}
+                                            aria-label="Volver a la lista de categorías"
                                         >
-                                            <ArrowLeft size={18} />
+                                            <ArrowLeft size={18} aria-hidden="true" />
                                         </Button>
                                         <div className="flex-1">
                                             <h1 className="text-xl md:text-3xl font-bold text-white mb-1 truncate">
                                                 {selectedCategory.name}
                                             </h1>
-                                            <p className="text-[#90a4cb] text-xs md:text-sm hidden md:block">
+                                            <p className="text-muted-foreground text-xs md:text-sm hidden md:block">
                                                 Configura los campos que tendra esta categoria
                                             </p>
                                         </div>
@@ -169,15 +170,16 @@ export default function CategoriesAdminPage() {
                                             size="icon"
                                             className="text-[#90a4cb] hover:text-white md:hidden"
                                             onClick={() => setSelectedFieldId('SETTINGS')}
+                                            aria-label="Configuración de la categoría"
                                         >
-                                            <Settings size={18} />
+                                            <Settings size={18} aria-hidden="true" />
                                         </Button>
                                         <Button
-                                            className="bg-primary hover:bg-blue-600 shadow-[0_0_20px_rgba(37,106,244,0.15)] h-9 md:h-10 px-3 md:px-4"
                                             onClick={handleSave}
                                             disabled={isSaving}
+                                            aria-label={isSaving ? 'Guardando cambios' : 'Guardar cambios'}
                                         >
-                                            <Save size={16} className="mr-0 md:mr-2" />
+                                            <Save size={16} className="mr-0 md:mr-2" aria-hidden="true" />
                                             <span className="hidden md:inline">{isSaving ? 'Guardando...' : 'Guardar'}</span>
                                         </Button>
                                     </div>
@@ -200,7 +202,7 @@ export default function CategoriesAdminPage() {
                         </>
                     ) : (
                         <div className="flex-1 flex items-center justify-center">
-                            <p className="text-[#5a6b8c]">Selecciona una categoria para comenzar a editarla</p>
+                            <p className="text-muted-foreground">Selecciona una categoría para comenzar a editarla</p>
                         </div>
                     )}
                 </main>

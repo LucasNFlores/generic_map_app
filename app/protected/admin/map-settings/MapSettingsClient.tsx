@@ -40,8 +40,9 @@ export function MapSettingsClient({ initialConfig }: Props) {
                                 href="/protected/admin"
                                 className="p-2.5 hover:bg-[#1e293b] rounded-xl transition-all border border-[#1e293b] bg-[#0f172a] shadow-lg group"
                                 title="Volver al panel de administración"
+                                aria-label="Volver al panel de administración"
                             >
-                                <ArrowLeft size={20} className="text-[#94a3b8] group-hover:text-white transition-colors" />
+                                <ArrowLeft size={20} className="text-[#94a3b8] group-hover:text-white transition-colors" aria-hidden="true" />
                             </Link>
                             <h1 className="text-2xl font-extrabold text-white">Configuración</h1>
                         </div>
@@ -68,8 +69,9 @@ export function MapSettingsClient({ initialConfig }: Props) {
                             <button
                                 onClick={() => setShowMobileMap(false)}
                                 className="bg-[#0f172a] border border-[#1e293b] text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 font-bold text-sm"
+                                aria-label="Volver a la configuración"
                             >
-                                <ArrowLeft size={16} />
+                                <ArrowLeft size={16} aria-hidden="true" />
                                 Volver a Configuración
                             </button>
                         </div>
@@ -83,11 +85,19 @@ export function MapSettingsClient({ initialConfig }: Props) {
 
                         {/* Mock device toggles (Visual only for now) */}
                         <div className="flex gap-2 bg-black/60 backdrop-blur-md border border-white/10 p-1 rounded-lg pointer-events-auto">
-                            <button className="p-2 hover:bg-white/10 rounded-md text-white transition-colors" title="Vista Desktop">
-                                <Monitor size={16} />
+                            <button
+                                className="p-2 hover:bg-white/10 rounded-md text-white transition-colors"
+                                title="Vista Desktop"
+                                aria-label="Cambiar a vista de escritorio"
+                            >
+                                <Monitor size={16} aria-hidden="true" />
                             </button>
-                            <button className="p-2 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-colors" title="Vista Móvil">
-                                <Smartphone size={16} />
+                            <button
+                                className="p-2 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-colors"
+                                title="Vista Móvil"
+                                aria-label="Cambiar a vista móvil"
+                            >
+                                <Smartphone size={16} aria-hidden="true" />
                             </button>
                         </div>
                     </div>
