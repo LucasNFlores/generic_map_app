@@ -1,15 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
-import { AdminDashboardClient } from "@/components/admin/AdminDashboardClient";
 import { redirect } from "next/navigation";
+import { Users, Settings2, Map as MapIcon, Shield, ChevronRight } from "lucide-react";
+import Link from 'next/link';
 
-export default async function AdminDashboardPage() {
+export default async function AdminHubPage() {
     const supabase = await createClient();
 
-    // 1. Check Auth & Role
+    // Auth Check
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        return redirect("/auth/login");
-    }
+    if (!user) return redirect("/auth/login");
 
     const { data: profile } = await supabase
         .from('profiles')
@@ -18,43 +17,74 @@ export default async function AdminDashboardPage() {
         .single();
 
     if (!profile || !['superadmin', 'admin', 'supervisor'].includes(profile.role)) {
-        // Redirect to map if not authorized
         return redirect("/protected/map");
     }
 
-    // 2. Fetch Initial Data in Parallel (No Waterfalls!)
-    // Note: We are mocking the API call logic here by calling DB directly or we could call the API if needed.
-    // For Server Components, it's often better to call DB directly or use a shared controller to avoid HTTP overhead.
-    // However, to keep it simple and consistent with previous "fetch" logic, let's replicate the queries.
-
-    // Fetch Users
-    const { data: usersData, error: usersError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-    if (usersError) {
-        console.error("Error fetching users:", usersError);
-    }
-
-    // Fetch Invitations
-    const { data: invitationsData, error: invitesError } = await supabase
-        .from('invitations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (invitesError) {
-        console.error("Error fetching invitations:", invitesError);
-    }
-
-    const users = usersData || [];
-    const invitations = invitationsData || [];
-
-    // 3. Render Client Component with Data
     return (
-        <AdminDashboardClient
-            initialUsers={users}
-            initialInvitations={invitations}
-        />
+        <div className="flex-1 w-full min-h-full bg-background overflow-y-auto custom-scrollbar p-8">
+            <div className="max-w-5xl mx-auto w-full flex flex-col gap-10">
+
+                <div className="space-y-2">
+                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Panel de Administración</h1>
+                    <p className="text-muted-foreground text-lg">Centro de control para la configuración del sistema y gestión del equipo.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    {/* Users & Team Card */}
+                    <Link href="/protected/admin/users" className="group relative overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                            <Users size={24} />
+                        </div>
+                        <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                            Usuarios y Equipo
+                            <ChevronRight size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-muted-foreground" />
+                        </h2>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                            Gestiona miembros del equipo, roles, permisos e invitaciones por correo electrónico.
+                        </p>
+                    </Link>
+
+                    {/* Categories Card */}
+                    <Link href="/protected/admin/categories" className="group relative overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 mb-6 group-hover:scale-110 transition-transform">
+                            <Settings2 size={24} />
+                        </div>
+                        <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                            Categorías
+                            <ChevronRight size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-muted-foreground" />
+                        </h2>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                            Configura las categorías y atributos disponibles para los elementos del mapa.
+                        </p>
+                    </Link>
+
+                    {/* Map Settings (Future) */}
+                    <div className="group relative overflow-hidden rounded-3xl bg-card/50 border border-border/50 p-6 opacity-60 cursor-not-allowed">
+                        <div className="absolute top-4 right-4 bg-muted text-muted-foreground text-[10px] font-bold px-2 py-1 rounded-full uppercase">Próximamente</div>
+                        <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
+                            <MapIcon size={24} />
+                        </div>
+                        <h2 className="text-xl font-bold mb-2">Configuración del Mapa</h2>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                            Ajusta capas base, estilos predeterminados y comportamientos del visor geográfico.
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* Quick Stats or Info */}
+                <div className="bg-muted/20 border border-border rounded-2xl p-6 flex items-start gap-4">
+                    <Shield className="text-muted-foreground mt-1" size={20} />
+                    <div>
+                        <h3 className="font-semibold text-foreground">Seguridad del Sistema</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Todas las acciones administrativas son registradas. Asegúrate de revocar el acceso a miembros antiguos del equipo para mantener la seguridad.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     );
 }
