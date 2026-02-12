@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react'; // Added useEffect
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
-    Search, UserPlus, MoreVertical,
+    Search, UserPlus, MoreVertical, ArrowLeft,
     ChevronLeft, ChevronRight, Mail, Shield, CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -100,11 +101,22 @@ export function UserManagementClient({
 
     return (
         <div className="flex flex-col gap-6 p-6 w-full max-w-7xl mx-auto">
+
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Equipo & Configuración</h1>
-                    <p className="text-muted-foreground mt-1">Gestiona permisos de acceso y miembros del equipo.</p>
+                <div className="flex items-center gap-4">
+                    <Link
+                        href="/protected/admin"
+                        className="p-2 hover:bg-accent rounded-xl transition-all border border-border bg-card shadow-sm group"
+                        title="Volver al panel de administración"
+                        aria-label="Volver al panel de administración"
+                    >
+                        <ArrowLeft size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
+                    </Link>
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Equipo & Configuración</h1>
+                        <p className="text-muted-foreground mt-1">Gestiona permisos de acceso y miembros del equipo.</p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" className="gap-2">
