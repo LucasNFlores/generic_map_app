@@ -83,23 +83,6 @@ export function MapSettingsClient({ initialConfig }: Props) {
                             Vista Previa
                         </div>
 
-                        {/* Mock device toggles (Visual only for now) */}
-                        <div className="flex gap-2 bg-background/80 backdrop-blur-md border border-border/50 p-1 rounded-lg pointer-events-auto">
-                            <button
-                                className="p-2 hover:bg-muted rounded-md text-foreground transition-colors"
-                                title="Vista Desktop"
-                                aria-label="Cambiar a vista de escritorio"
-                            >
-                                <Monitor size={16} aria-hidden="true" />
-                            </button>
-                            <button
-                                className="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
-                                title="Vista Móvil"
-                                aria-label="Cambiar a vista móvil"
-                            >
-                                <Smartphone size={16} aria-hidden="true" />
-                            </button>
-                        </div>
                     </div>
 
                     <div className="flex-1 relative bg-muted/20">
