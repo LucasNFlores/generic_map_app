@@ -17,6 +17,7 @@ interface UserProfile {
     role: 'superadmin' | 'admin' | 'supervisor' | 'invited';
     updated_at: string;
     email?: string;
+    config?: { email?: string };
 }
 
 interface UserTableProps {
@@ -25,6 +26,7 @@ interface UserTableProps {
     currentPage: number;
     itemsPerPage: number;
     onPageChange: (page: number) => void;
+    onEdit: (user: UserProfile) => void;
 }
 
 export function UserTable({
@@ -32,7 +34,8 @@ export function UserTable({
     totalUsers,
     currentPage,
     itemsPerPage,
-    onPageChange
+    onPageChange,
+    onEdit
 }: UserTableProps) {
     const totalPages = Math.ceil(totalUsers / itemsPerPage);
 
@@ -53,7 +56,7 @@ export function UserTable({
                             <th className="px-4 py-3 font-medium">Rol</th>
                             <th className="px-4 py-3 font-medium">Estado</th>
                             <th className="px-4 py-3 font-medium">Última Actividad</th>
-                            <th className="px-4 py-3 font-medium text-right">Acciones</th>
+                            <th className="px-4 py-3 font-medium text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -68,7 +71,7 @@ export function UserTable({
                                             <div className="font-medium text-foreground">
                                                 {user.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Usuario sin nombre'}
                                             </div>
-                                            <div className="text-xs text-muted-foreground">{user.email || 'No email'}</div>
+                                            <div className="text-xs text-muted-foreground">{user.email || user.config?.email || 'No email'}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -86,16 +89,16 @@ export function UserTable({
                                 <td className="px-4 py-4 text-muted-foreground">
                                     {new Date(user.updated_at).toLocaleDateString()}
                                 </td>
-                                <td className="px-4 py-4 text-right">
+                                <td className="px-4 py-4 text-right flex justify-center">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label={`Acciones para ${user.first_name || user.email}`}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:cursor-pointer" aria-label={`Acciones para ${user.first_name || user.email}`}>
                                                 <MoreVertical size={16} />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>Editar Rol</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-destructive">Eliminar Usuario</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onEdit(user)} className="cursor-pointer">Editar Usuario</DropdownMenuItem>
+                                            <DropdownMenuItem className="text-destructive cursor-pointer hover:bg-destructive/10 hover:text-destructive">Eliminar Usuario</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </td>

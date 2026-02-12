@@ -11,6 +11,8 @@ import { UserTable } from './UserTable';
 import { InvitationsSidebar } from './InvitationsSidebar';
 import { InviteUserDialog } from './InviteUserDialog';
 
+import { EditUserDialog } from './EditUserDialog';
+
 // Types
 interface UserProfile {
     id: string;
@@ -19,6 +21,7 @@ interface UserProfile {
     role: 'superadmin' | 'admin' | 'supervisor' | 'invited';
     updated_at: string;
     email?: string;
+    config?: { email?: string };
 }
 
 interface Invitation {
@@ -49,6 +52,10 @@ export function UserManagementClient({
     // Local State
     const [searchValue, setSearchValue] = useState(searchQuery);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+    // Edit State
+    const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     // Debounce Search
     useEffect(() => {
@@ -83,6 +90,31 @@ export function UserManagementClient({
         }
     };
 
+    const handleEditUser = (user: UserProfile) => {
+        setEditingUser(user);
+        setIsEditOpen(true);
+    };
+
+    const handleSaveUser = async (id: string, updates: Partial<UserProfile>) => {
+        try {
+            const res = await fetch(`/api/admin/users`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, ...updates }),
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            toast.success("Usuario actualizado correctamente");
+            setIsEditOpen(false);
+            setEditingUser(null);
+            router.refresh();
+        } catch (error: any) {
+            toast.error(error.message || 'Error al actualizar usuario');
+            console.error(error);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-6 p-6 w-full max-w-7xl mx-auto">
 
@@ -113,6 +145,13 @@ export function UserManagementClient({
                         onOpenChange={setIsInviteOpen}
                         onInvite={handleInvite}
                     />
+
+                    <EditUserDialog
+                        isOpen={isEditOpen}
+                        onOpenChange={setIsEditOpen}
+                        user={editingUser}
+                        onSave={handleSaveUser}
+                    />
                 </div>
             </div>
 
@@ -139,6 +178,7 @@ export function UserManagementClient({
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         onPageChange={handlePageChange}
+                        onEdit={handleEditUser}
                     />
                 </div>
 
