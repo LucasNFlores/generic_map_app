@@ -48,7 +48,7 @@ export function UserTable({
                 </h2>
             </div>
 
-            <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-400px)] min-h-[400px] scrollbar-thin scrollbar-thumb-border">
+            <div className="overflow-x-auto overflow-y-auto lg:max-h-[calc(100vh-400px)] min-h-[300px] scrollbar-thin scrollbar-thumb-border">
                 <table className="w-full text-left text-sm border-separate border-spacing-0">
                     <thead className="bg-muted/90 backdrop-blur-sm text-muted-foreground uppercase text-xs sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -61,7 +61,7 @@ export function UserTable({
                     </thead>
                     <tbody className="divide-y divide-border">
                         {users.map((user) => (
-                            <tr key={user.id} className="group hover:bg-muted/30 transition-colors">
+                            <tr key={user.id} className="group hover:bg-accent transition-colors even:bg-muted/80">
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">

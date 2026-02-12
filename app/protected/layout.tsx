@@ -45,11 +45,11 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <main className="h-screen w-screen overflow-hidden relative flex flex-col">
+    <main className="h-screen w-full relative flex flex-col bg-background overflow-hidden">
       {/* Floating User Menu */}
       <UserMenu user={profileData} />
 
-      <div id="container main" className="w-full flex-1 flex flex-col overflow-hidden">
+      <div id="container main" className="w-full flex-1 flex flex-col overflow-y-auto relative">
         {children}
       </div>
     </main>
