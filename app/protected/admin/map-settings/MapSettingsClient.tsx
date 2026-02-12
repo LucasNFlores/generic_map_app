@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 const MapComponent = dynamic(() => import('@/components/map/mapComponent'), {
     ssr: false,
-    loading: () => <div className="w-full h-full flex items-center justify-center bg-[#050912] text-gray-500">Cargando mapa...</div>
+    loading: () => <div className="w-full h-full flex items-center justify-center bg-muted/10 text-muted-foreground">Cargando mapa...</div>
 });
 
 interface Props {
@@ -26,27 +26,27 @@ export function MapSettingsClient({ initialConfig }: Props) {
 
     return (
         <MapStoreProvider>
-            <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden bg-[#0a0e17]">
+            <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden bg-background">
 
                 {/* Left Panel: Settings Form */}
                 {/* Left Panel: Settings Form */}
                 <div className={`
-                    w-full h-full lg:w-[400px] xl:w-[450px] flex-none bg-[#0f172a] border-b lg:border-b-0 lg:border-r border-[#1e293b] flex flex-col z-20 shadow-2xl transition-all
+                    w-full h-full lg:w-[400px] xl:w-[450px] flex-none bg-card border-b lg:border-b-0 lg:border-r border-border flex flex-col z-20 shadow-2xl transition-all
                     ${showMobileMap ? 'hidden lg:flex' : 'flex'}
                 `}>
-                    <div className="p-6 border-b border-[#1e293b] bg-[#131c2e]">
+                    <div className="p-6 border-b border-border bg-card/50 backdrop-blur-sm">
                         <div className='flex gap-2 items-center'>
                             <Link
                                 href="/protected/admin"
-                                className="p-2.5 hover:bg-[#1e293b] rounded-xl transition-all border border-[#1e293b] bg-[#0f172a] shadow-lg group"
+                                className="p-2.5 hover:bg-muted rounded-xl transition-all border border-border bg-card shadow-lg group"
                                 title="Volver al panel de administración"
                                 aria-label="Volver al panel de administración"
                             >
-                                <ArrowLeft size={20} className="text-[#94a3b8] group-hover:text-white transition-colors" aria-hidden="true" />
+                                <ArrowLeft size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
                             </Link>
-                            <h1 className="text-2xl font-extrabold text-white">Configuración</h1>
+                            <h1 className="text-2xl font-extrabold text-foreground">Configuración</h1>
                         </div>
-                        <p className="text-gray-400 text-sm mt-1">Personaliza la experiencia del mapa</p>
+                        <p className="text-muted-foreground text-sm mt-1">Personaliza la experiencia del mapa</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -68,7 +68,7 @@ export function MapSettingsClient({ initialConfig }: Props) {
                         <div className="absolute top-4 left-4 z-50 lg:hidden">
                             <button
                                 onClick={() => setShowMobileMap(false)}
-                                className="bg-[#0f172a] border border-[#1e293b] text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 font-bold text-sm"
+                                className="bg-card border border-border text-foreground px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 font-bold text-sm"
                                 aria-label="Volver a la configuración"
                             >
                                 <ArrowLeft size={16} aria-hidden="true" />
@@ -78,22 +78,22 @@ export function MapSettingsClient({ initialConfig }: Props) {
                     )}
                     {/* Toolbar overlay */}
                     <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
-                        <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-white text-xs font-bold capitalize tracking-wider shadow-lg flex items-center gap-2">
+                        <div className="bg-background/80 backdrop-blur-md border border-border/50 px-4 py-2 rounded-full text-foreground text-xs font-bold capitalize tracking-wider shadow-lg flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             Vista Previa
                         </div>
 
                         {/* Mock device toggles (Visual only for now) */}
-                        <div className="flex gap-2 bg-black/60 backdrop-blur-md border border-white/10 p-1 rounded-lg pointer-events-auto">
+                        <div className="flex gap-2 bg-background/80 backdrop-blur-md border border-border/50 p-1 rounded-lg pointer-events-auto">
                             <button
-                                className="p-2 hover:bg-white/10 rounded-md text-white transition-colors"
+                                className="p-2 hover:bg-muted rounded-md text-foreground transition-colors"
                                 title="Vista Desktop"
                                 aria-label="Cambiar a vista de escritorio"
                             >
                                 <Monitor size={16} aria-hidden="true" />
                             </button>
                             <button
-                                className="p-2 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-colors"
+                                className="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
                                 title="Vista Móvil"
                                 aria-label="Cambiar a vista móvil"
                             >
@@ -102,7 +102,7 @@ export function MapSettingsClient({ initialConfig }: Props) {
                         </div>
                     </div>
 
-                    <div className="flex-1 relative bg-[#050912]">
+                    <div className="flex-1 relative bg-muted/20">
                         {/* We pass customConfig to force the map to use our preview settings */}
                         <MapComponent isReadOnly={false} customConfig={previewConfig} />
                     </div>
@@ -117,11 +117,11 @@ export function MapSettingsClient({ initialConfig }: Props) {
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #334155;
+                    background: hsl(var(--border));
                     border-radius: 10px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #475569;
+                    background: hsl(var(--muted-foreground));
                 }
             `}</style>
         </MapStoreProvider>

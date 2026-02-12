@@ -22,15 +22,15 @@ export function SelectableCard({
             className={cn(
                 "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all group",
                 selected
-                    ? "bg-blue-600/10 border-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-                    : "bg-[#161e2e] border-[#222f49] text-[#90a4cb] hover:border-blue-500/50 hover:bg-[#1e293b] hover:text-white",
+                    ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_hsl(var(--primary)/0.5)]"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/50 hover:bg-muted hover:text-foreground",
                 className
             )}
             {...props}
         >
             <div className={cn(
                 "transition-colors",
-                selected ? "text-blue-500" : iconColor || "text-[#5a6b8c] group-hover:text-white"
+                selected ? "text-primary" : iconColor || "text-muted-foreground group-hover:text-foreground"
             )}>
                 {icon}
             </div>
