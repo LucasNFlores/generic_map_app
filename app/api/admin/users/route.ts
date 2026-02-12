@@ -100,3 +100,51 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+
+export async function PUT(request: Request) {
+    const supabase = await createClient();
+
+    // 1. Check if user is admin or superadmin
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (!profile || !['admin', 'superadmin'].includes(profile.role)) {
+        return NextResponse.json({ error: 'Prohibido: Se requiere rol de administrador' }, { status: 403 });
+    }
+
+    try {
+        const body = await request.json();
+        const { id, first_name, last_name, role } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID de usuario es requerido' }, { status: 400 });
+        }
+
+        // 2. Update profile
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                first_name: first_name || null,
+                last_name: last_name || null,
+                role: role,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        return NextResponse.json({ success: true });
+
+    } catch (error: any) {
+        console.error('API Admin Users PUT:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}

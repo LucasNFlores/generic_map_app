@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 export default async function AdminUsersPage({
     searchParams,
 }: {
-    searchParams: { page?: string, query?: string }
+    searchParams: Promise<{ page?: string, query?: string }>
 }) {
     const supabase = await createClient();
+    const { page: pageParam, query: queryParam } = await searchParams;
 
     // 1. Check Auth & Role
     const { data: { user } } = await supabase.auth.getUser();
@@ -26,11 +27,11 @@ export default async function AdminUsersPage({
     }
 
     // 2. Pagination & Search Logic
-    const page = Number(searchParams.page) || 1;
+    const page = Number(pageParam) || 1;
     const itemsPerPage = 10;
     const from = (page - 1) * itemsPerPage;
     const to = from + itemsPerPage - 1;
-    const query = searchParams.query || '';
+    const query = queryParam || '';
 
     // Build Query
     let usersQuery = supabase
