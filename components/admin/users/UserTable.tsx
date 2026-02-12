@@ -48,15 +48,15 @@ export function UserTable({
                 </h2>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                    <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
+            <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-400px)] min-h-[400px] scrollbar-thin scrollbar-thumb-border">
+                <table className="w-full text-left text-sm border-separate border-spacing-0">
+                    <thead className="bg-muted/90 backdrop-blur-sm text-muted-foreground uppercase text-xs sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th className="px-4 py-3 font-medium">Usuario</th>
-                            <th className="px-4 py-3 font-medium">Rol</th>
-                            <th className="px-4 py-3 font-medium">Estado</th>
-                            <th className="px-4 py-3 font-medium">Última Actividad</th>
-                            <th className="px-4 py-3 font-medium text-center">Acciones</th>
+                            <th className="px-4 py-3 font-medium border-b border-border">Usuario</th>
+                            <th className="px-4 py-3 font-medium border-b border-border">Rol</th>
+                            <th className="px-4 py-3 font-medium border-b border-border">Estado</th>
+                            <th className="px-4 py-3 font-medium border-b border-border">Última Actividad</th>
+                            <th className="px-4 py-3 font-medium text-center border-b border-border">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -65,7 +65,7 @@ export function UserTable({
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">
-                                            {(user.first_name || user.email || 'U').charAt(0).toUpperCase()}
+                                            {(user.first_name || user.email || user.config?.email || 'U').charAt(0).toUpperCase()}
                                         </div>
                                         <div>
                                             <div className="font-medium text-foreground">
