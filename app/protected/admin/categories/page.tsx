@@ -14,9 +14,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Category, FormFieldDefinition } from '@/types';
-import { FieldDefinitionBuilder } from '@/components/admin/FieldDefinitionBuilder';
-import { CategorySidebar } from '@/components/admin/CategorySidebar';
-import { FieldPropertiesPanel } from '@/components/admin/FieldPropertiesPanel';
+import { FieldDefinitionBuilder } from '@/components/admin/categories/FieldDefinitionBuilder';
+import { CategorySidebar } from '@/components/admin/categories/CategorySidebar';
+import { FieldPropertiesPanel } from '@/components/admin/categories/FieldPropertiesPanel';
 
 export default function CategoriesAdminPage() {
     const [categories, setCategories] = React.useState<Category[]>([]);
