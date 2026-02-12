@@ -39,7 +39,7 @@ export default async function Header() {
     // Si NO hay usuario (Guest), mostramos la pill estandarizada con botón de login
     return (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto min-w-[340px] max-w-[500px]">
-            <nav className="bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl transition-all duration-300 overflow-hidden">
+            <nav className="bg-background/80 hover:bg-background backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl transition-all duration-300 overflow-hidden hover:shadow-2xl">
                 <div className="flex items-center justify-between p-2 px-3 gap-4">
                     <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
                         <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20 group-hover:bg-primary/20 transition-colors">

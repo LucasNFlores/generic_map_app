@@ -54,10 +54,19 @@ export default function UserMenu({ user }: UserMenuProps) {
             className={cn(
                 "fixed left-1/2 -translate-x-1/2 z-[100] w-[95%] md:w-auto min-w-[340px] max-w-[500px] transition-all duration-500 ease-in-out group",
                 isDocked
-                    ? "top-0 -translate-y-[calc(100%-12px)] hover:-translate-y-[60%]"
+                    ? "top-0 -translate-y-[calc(100%-12px)] hover:top-6 hover:translate-y-0"
                     : "top-6 translate-y-0"
             )}
+            onMouseLeave={() => {
+                setIsOpen(false);
+                setIsDocked(true);
+            }}
         >
+            {/* Hover Buffer: Área invisible extendida para mejorar la usabilidad del hover */}
+            <div className="absolute -bottom-12 left-0 right-0 h-12 bg-transparent z-0" />
+            <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent z-0" />
+            <div className="absolute top-0 -left-8 w-8 h-full bg-transparent z-0" />
+            <div className="absolute top-0 -right-8 w-8 h-full bg-transparent z-0" />
             {/* Zona Roja (Espacio invisible sobre el menú para ocultar) */}
             {!isDocked && (
                 <div
@@ -76,7 +85,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             {/* Pill Container */}
             <div
                 className={cn(
-                    "bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden relative",
+                    "bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden relative z-10",
                     isOpen ? "rounded-b-none border-b-0" : "",
                     isDocked ? "cursor-pointer" : ""
                 )}
@@ -124,7 +133,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                 {/* Docked Indicator Handle (Only visible when docked) */}
                 {isDocked && (
-                    <div className="absolute bottom-0 left-0 right-0 h-3 flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                    <div className="absolute bottom-0 left-0 right-0 h-3 flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-colors pointer-events-none">
                         <ChevronDown className="h-3 w-3 text-primary/50 animate-bounce" />
                     </div>
                 )}
@@ -133,8 +142,8 @@ export default function UserMenu({ user }: UserMenuProps) {
             {/* Dropdown Menu */}
             <div
                 className={cn(
-                    "bg-background/95 backdrop-blur-xl border border-border/50 border-t-0 rounded-b-2xl shadow-xl transition-all duration-300 overflow-hidden origin-top",
-                    (isOpen && !isDocked) ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                    "bg-background/95 backdrop-blur-xl border border-border/50 border-t-0 rounded-b-2xl shadow-xl transition-all duration-300 overflow-hidden origin-top relative z-10",
+                    isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
                 )}
             >
                 <div className="flex flex-col py-2">
