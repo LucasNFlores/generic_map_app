@@ -59,17 +59,19 @@ export default async function AdminHubPage() {
                         </p>
                     </Link>
 
-                    {/* Map Settings (Future) */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-card/50 border border-border/50 p-6 opacity-60 cursor-not-allowed">
-                        <div className="absolute top-4 right-4 bg-muted text-muted-foreground text-[10px] font-bold px-2 py-1 rounded-full uppercase">Próximamente</div>
-                        <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
+                    {/* Map Settings */}
+                    <Link href="/protected/admin/map-settings" className="group relative overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
                             <MapIcon size={24} />
                         </div>
-                        <h2 className="text-xl font-bold mb-2">Configuración del Mapa</h2>
+                        <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                            Configuración del Mapa
+                            <ChevronRight size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-muted-foreground" aria-hidden="true" />
+                        </h2>
                         <p className="text-muted-foreground text-sm leading-relaxed">
                             Ajusta capas base, estilos predeterminados y comportamientos del visor geográfico.
                         </p>
-                    </div>
+                    </Link>
 
                 </div>
 
