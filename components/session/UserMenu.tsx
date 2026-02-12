@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, LayoutDashboard, Map, ClipboardList, Users, LogOut, MapPinned, Sun, Moon, Laptop } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ThemeSwitcher } from '@/components/theme-switcher';
 import { useTheme } from 'next-themes';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -23,6 +22,11 @@ export default function UserMenu({ user }: UserMenuProps) {
     const [isDocked, setIsDocked] = useState(true); // Nuevo estado para auto-ocultar
     const { theme, setTheme } = useTheme();
     const router = useRouter();
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleLogout = async () => {
         const supabase = createClient();
@@ -145,9 +149,9 @@ export default function UserMenu({ user }: UserMenuProps) {
                     <div className="px-6 py-2">
                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Tema</p>
                         <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-lg border border-border/50">
-                            <ThemeOption theme="light" active={theme === 'light'} onClick={() => setTheme('light')} icon={<Sun className="h-4 w-4" />} />
-                            <ThemeOption theme="dark" active={theme === 'dark'} onClick={() => setTheme('dark')} icon={<Moon className="h-4 w-4" />} />
-                            <ThemeOption theme="system" active={theme === 'system'} onClick={() => setTheme('system')} icon={<Laptop className="h-4 w-4" />} />
+                            <ThemeOption theme="light" active={mounted && theme === 'light'} onClick={() => setTheme('light')} icon={<Sun className="h-4 w-4" />} />
+                            <ThemeOption theme="dark" active={mounted && theme === 'dark'} onClick={() => setTheme('dark')} icon={<Moon className="h-4 w-4" />} />
+                            <ThemeOption theme="system" active={mounted && theme === 'system'} onClick={() => setTheme('system')} icon={<Laptop className="h-4 w-4" />} />
                         </div>
                     </div>
 
