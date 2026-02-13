@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Users, Settings2, Map as MapIcon, Shield, ChevronRight } from "lucide-react";
+import { Users, Settings2, Map as MapIcon, Shield, ChevronRight, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
 
 export default async function AdminHubPage() {
@@ -24,9 +24,19 @@ export default async function AdminHubPage() {
         <div className="flex-1 w-full min-h-full bg-background overflow-y-auto custom-scrollbar p-8">
             <div className="max-w-5xl mx-auto w-full flex flex-col gap-10">
 
-                <div className="space-y-2">
-                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Panel de Administración</h1>
-                    <p className="text-muted-foreground text-lg">Centro de control para la configuración del sistema y gestión del equipo.</p>
+                <div className="space-y-2 flex gap-2">
+                    <Link
+                        href="/protected/map"
+                        className="p-2.5 hover:bg-muted rounded-xl flex items-center justify-center lg:w-16 transition-all border border-border bg-card shadow-lg group"
+                        title="Volver al mapa"
+                        aria-label="Volver al mapa"
+                    >
+                        <ArrowLeft size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
+                    </Link>
+                    <div className="pl-4">
+                        <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Panel de Administración</h1>
+                        <p className="text-muted-foreground text-lg">Centro de control para la configuración del sistema y gestión del equipo.</p>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
