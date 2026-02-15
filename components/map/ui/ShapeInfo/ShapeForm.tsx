@@ -61,6 +61,17 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
+        if (name === 'category_id') {
+            // Si cambia la categoría, limpiamos los metadatos anteriores
+            setFormData(prev => ({
+                ...prev,
+                [name]: value,
+                metadata: {}
+            }));
+            return;
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
