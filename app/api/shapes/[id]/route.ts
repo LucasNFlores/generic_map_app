@@ -41,6 +41,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             .update({
                 name: body.name,
                 description: body.description,
+                category_id: body.category_id,
                 location_address: body.location_address,
                 metadata: body.metadata, // Soporte para campos dinámicos de categorías
                 // (No actualizamos 'type', 'id' o 'creator_id', etc.)
