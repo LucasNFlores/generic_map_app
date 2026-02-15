@@ -4,7 +4,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:e2e": "tsx e2e/tests/home-page.test.ts",
+    "test:e2e:login": "tsx e2e/tests/auth-login.test.ts",
+    "test:e2e:signup": "tsx e2e/tests/auth-signup.test.ts",
+    "test:e2e:nav": "tsx e2e/tests/navigation.test.ts",
+    "test:e2e:all": "tsx e2e/tests/home-page.test.ts && tsx e2e/tests/auth-login.test.ts && tsx e2e/tests/auth-signup.test.ts && tsx e2e/tests/navigation.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -32,18 +37,22 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@browserbasehq/stagehand": "^3.0.8",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
     "baseline-browser-mapping": "^2.9.19",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "postcss": "^8",
     "supabase": "^2.75.3",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "5.9.3"
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3",
+    "zod": "^4.3.6"
   }
 }
