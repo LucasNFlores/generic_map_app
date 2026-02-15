@@ -19,16 +19,21 @@ const MapStoreContext = createContext<MapStoreApi | undefined>(
 
 interface MapStoreProviderProps {
     children: ReactNode;
+    userRole?: string;
 }
 
 // 3. Creamos el Componente Provider
 export const MapStoreProvider = ({
     children,
+    userRole,
 }: MapStoreProviderProps) => {
     const storeRef = useRef<MapStoreApi | null>(null);
     if (storeRef.current === null) {
         // Usamos la fábrica importada para crear el store
-        storeRef.current = createMapStore(defaultInitialState);
+        storeRef.current = createMapStore({
+            ...defaultInitialState,
+            currentUserRole: userRole || null,
+        });
     }
 
     return (

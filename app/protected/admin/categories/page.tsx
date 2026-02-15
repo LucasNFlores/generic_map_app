@@ -57,6 +57,8 @@ export default function CategoriesAdminPage() {
             color: '#3b82f6',
             icon: 'MapPin',
             fields_definition: [],
+            allowed_view_roles: null,
+            allowed_create_edit_roles: null,
             created_at: new Date().toISOString()
         };
         setSelectedCategory(newCategory);

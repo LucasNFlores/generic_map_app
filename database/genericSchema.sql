@@ -31,6 +31,10 @@ CREATE TABLE public.categories (
     -- Ejemplo: [{"id": "tipo", "label": "Tipo", "type": "select", "options": ["A", "B"]}]
     fields_definition JSONB DEFAULT '[]'::jsonb,
     
+    -- Permisos por rol (NULL = abierto a todos)
+    allowed_view_roles text[] DEFAULT NULL,
+    allowed_create_edit_roles text[] DEFAULT NULL,
+    
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

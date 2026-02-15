@@ -28,6 +28,8 @@ export interface Category {
     icon: string | null;
     color: string;
     fields_definition: FormFieldDefinition[];
+    allowed_view_roles: string[] | null;
+    allowed_create_edit_roles: string[] | null;
     created_at: string;
 }
 

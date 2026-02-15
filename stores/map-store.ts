@@ -22,6 +22,7 @@ export type MapState = {
 	selectedShape: ShapeWithPoints | null;
 	mapConfig: MapConfiguration | null;
 	isLoadingMapConfig: boolean;
+	currentUserRole: string | null;
 };
 
 // --- 2. MapActions (Actualizado) ---
@@ -40,6 +41,7 @@ export type MapActions = {
 	setSelectedShape: (shape: ShapeWithPoints | null) => void;
 	fetchMapConfig: () => Promise<void>;
 	setMapConfig: (config: MapConfiguration) => void;
+	setCurrentUserRole: (role: string) => void;
 };
 
 export type MapStore = MapState & MapActions;
@@ -64,6 +66,7 @@ export const defaultInitialState: MapState = {
 	selectedShape: null, // 4. Estado inicial nulo
 	mapConfig: null,
 	isLoadingMapConfig: false,
+	currentUserRole: null,
 };
 
 export const createMapStore = (
@@ -138,5 +141,6 @@ export const createMapStore = (
 		},
 
 		setMapConfig: (config) => set({ mapConfig: config }),
+		setCurrentUserRole: (role) => set({ currentUserRole: role }),
 	}));
 };

@@ -1,10 +1,81 @@
 import * as React from 'react';
-import { Settings, Trash2, X, ArrowLeft } from 'lucide-react';
+import { Settings, Trash2, X, ArrowLeft, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Category, FormFieldDefinition } from '@/types';
 import { FieldTypeSelector } from './FieldTypeSelector';
 import { SelectOptionsEditor } from './SelectOptionsEditor';
+
+const ALL_ROLES = [
+    { value: 'superadmin', label: 'Superadmin' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'supervisor', label: 'Supervisor' },
+    { value: 'invited', label: 'Invitado' },
+];
+
+function RoleCheckboxGroup({
+    label,
+    description,
+    selectedRoles,
+    onChange,
+}: {
+    label: string;
+    description: string;
+    selectedRoles: string[] | null;
+    onChange: (roles: string[] | null) => void;
+}) {
+    const isAllOpen = selectedRoles === null;
+
+    const handleToggleRole = (role: string) => {
+        if (isAllOpen) {
+            // First click when open-to-all: restrict to only this role
+            onChange([role]);
+            return;
+        }
+        const current = selectedRoles || [];
+        if (current.includes(role)) {
+            const next = current.filter(r => r !== role);
+            // If empty, revert to null (open to all)
+            onChange(next.length === 0 ? null : next);
+        } else {
+            onChange([...current, role]);
+        }
+    };
+
+    return (
+        <div className="mb-5">
+            <p className="text-xs font-medium text-foreground mb-1">{label}</p>
+            <p className="text-[10px] text-muted-foreground mb-3">{description}</p>
+            <div className="space-y-1.5">
+                {ALL_ROLES.map((role) => {
+                    const isChecked = isAllOpen || (selectedRoles?.includes(role.value) ?? false);
+                    return (
+                        <label
+                            key={role.value}
+                            className={cn(
+                                "flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all border",
+                                isChecked && !isAllOpen
+                                    ? "bg-primary/5 border-primary/20 text-foreground"
+                                    : "border-transparent hover:bg-muted/50 text-muted-foreground"
+                            )}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleToggleRole(role.value)}
+                                className="rounded border-border text-primary focus:ring-primary/50 h-3.5 w-3.5"
+                            />
+                            <span className="text-xs font-medium">{role.label}</span>
+                            {isAllOpen && (
+                                <span className="text-[9px] text-muted-foreground/60 ml-auto">todos</span>
+                            )}
+                        </label>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
 
 interface FieldPropertiesPanelProps {
     selectedFieldId: string;
@@ -96,6 +167,28 @@ export function FieldPropertiesPanel({
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Permissions Section */}
+                        <div className="pt-6 border-t border-border">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-4">
+                                <Shield size={12} className="inline mr-1.5 -mt-0.5" />
+                                Permisos por Rol
+                            </label>
+
+                            <RoleCheckboxGroup
+                                label="¿Quién puede ver?"
+                                description="Si no se selecciona ninguno, todos los roles pueden ver."
+                                selectedRoles={selectedCategory?.allowed_view_roles ?? null}
+                                onChange={(roles) => selectedCategory && onChangeCategory({ ...selectedCategory, allowed_view_roles: roles })}
+                            />
+
+                            <RoleCheckboxGroup
+                                label="¿Quién puede crear/editar?"
+                                description="Si no se selecciona ninguno, todos los roles pueden crear y editar."
+                                selectedRoles={selectedCategory?.allowed_create_edit_roles ?? null}
+                                onChange={(roles) => selectedCategory && onChangeCategory({ ...selectedCategory, allowed_create_edit_roles: roles })}
+                            />
                         </div>
 
                         <div className="pt-8 border-t border-border">

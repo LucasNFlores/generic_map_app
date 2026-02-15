@@ -23,12 +23,20 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
     const clearPendingPoints = useMapStore((state: MapStore) => state.clearPendingPoints);
     const fetchShapes = useMapStore((state: MapStore) => state.fetchShapes);
     const categories = useMapStore((state: MapStore) => state.categories);
+    const currentUserRole = useMapStore((state: MapStore) => state.currentUserRole);
+
+    // Filter categories to only those the user can create/edit
+    const editableCategories = React.useMemo(() => categories.filter(c => {
+        if (!c.allowed_create_edit_roles) return true; // NULL = open to all
+        if (!currentUserRole) return false;
+        return c.allowed_create_edit_roles.includes(currentUserRole);
+    }), [categories, currentUserRole]);
 
     const [formData, setFormData] = useState({
         name: shape.name || '',
         description: shape.description || '',
         location_address: shape.location_address || '',
-        category_id: shape.category_id || (categories.length > 0 ? categories[0].id : ''),
+        category_id: shape.category_id || (editableCategories.length > 0 ? editableCategories[0].id : ''),
         metadata: shape.metadata || {},
     });
 
@@ -40,10 +48,10 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
             name: shape.name || '',
             description: shape.description || '',
             location_address: shape.location_address || '',
-            category_id: shape.category_id || (categories.length > 0 ? categories[0].id : ''),
+            category_id: shape.category_id || (editableCategories.length > 0 ? editableCategories[0].id : ''),
             metadata: shape.metadata || {},
         });
-    }, [shape, categories]);
+    }, [shape, editableCategories]);
 
     const handleClose = () => {
         setSelectedShape(null);
@@ -162,7 +170,7 @@ export function ShapeForm({ shape, isNew = false }: ShapeFormProps) {
 
                     <Select label="Categoría" name="category_id" value={formData.category_id} onChange={handleChange} required>
                         <option value="">Seleccionar categoría...</option>
-                        {categories.map(c => (
+                        {editableCategories.map(c => (
                             <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                     </Select>
