@@ -7,21 +7,21 @@ import { useEffect, useState, useMemo } from 'react';
 // Solución al tipo 'source'
 type LayerStyleProps<T> = Omit<T, 'source'>;
 
-// --- 1. Helper para leer la variable CSS desde el DOM ---
+// --- 1. Helper para obtener colores fijos (Mapbox no soporta OKLCH de Tailwind) ---
 const getCssVariable = (varName: string): string => {
-    if (typeof window === 'undefined') {
-        return '#ef4444'; // Rojo destructivo default
+    // Retornamos colores HEX fijos para evitar problemas con Mapbox y OKLCH
+    switch (varName) {
+        case '--primary':
+            return '#3b82f6'; // Azul vibrante
+        case '--destructive':
+            return '#ef4444'; // Rojo error
+        case '--background':
+            return '#ffffff';
+        case '--foreground':
+            return '#020617';
+        default:
+            return '#3b82f6';
     }
-    const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-    if (!value) {
-        return '#ef4444';
-    }
-    // Si el valor ya es un color (ej: HEX de la base de datos), lo devolvemos tal cual
-    if (value.startsWith('#') || value.startsWith('oklch') || value.startsWith('rgb') || value.startsWith('hsl')) {
-        return value;
-    }
-    // Si es solo un conjunto de valores (como nuestras variables OKLCH), lo envolvemos
-    return `oklch(${value})`;
 };
 
 // --- 2. CONVERTIMOS LOS ESTILOS EN FUNCIONES ---

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { DynamicThemeProvider } from "@/components/providers/dynamic-theme-provider";
+
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 
@@ -35,9 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <DynamicThemeProvider>
-            {children}
-          </DynamicThemeProvider>
+          {children}
 
           <Toaster position="bottom-right" />
         </ThemeProvider>
